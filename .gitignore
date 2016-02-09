@@ -1,0 +1,20 @@
+# IntelliJ Idea
+.idea/
+
+target/
+
+project/
+
+#ILP
+src/main/scala/ilp/
+src/test/scala/ilp/
+
+
+#BiMap
+src/main/scala/BiMap.scala
+src/main/scala/HashBiMap.scala
+src/test/scala/HashBiMapSpec.scala
+
+#tmp
+*~
+

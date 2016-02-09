@@ -1,0 +1,14 @@
+(* taskset syntax in EBNF(ISO 14977) *)
+
+taskSetDecl = taskSetStmt {sep taskSetStmt} ;
+taskSetStmt = taskDecl | precedDecl | comment ;
+sep = ("," | ";"| "\t" | "\r" | "\n" | "\s" | "\f") {"," | ";"| "\t" | "\r" | "\n" | "\s" | "\f"} ;
+precedDecl = simplePrecedDecl | complexPrecedDecl ;
+taskDecl = taskId "(" digit {digit} "," digit {digit} "," digit {digit} ["," digit {digit}] ")" ;
+taskId = ( letter | digit) {letter | digit} ;
+simplePrecedDecl = taskId "->" taskId ;
+complexPrecedDecl = taskId "->" "(" listTaskId ")" ;
+listTaskId = taskId {"," taskId} ;
+comment = "\*" {anyCharacter |"\n" | "\r"} "*\";
+letter = "a".."z" | "A".."Z" ;
+digit = "0".."9" ;
