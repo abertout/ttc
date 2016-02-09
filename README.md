@@ -4,7 +4,7 @@ ttc
 It supports DM and EDF scheduling policies in uniprocessor and multiprocessor partitionned settings. 
 Different criteria (called CostFunctions) may be used as objective function when minimizing the number of tasks.
 
-**ttc** implements the work described in
+**ttc** implements the work described in<br />
 [Antoine Bertout, Julien Forget, and Richard Olejnik. Minimizing a real-time task set through Task Clustering. 
 In Proceedings of the 22nd International Conference on Real-Time Networks and Systems (RTNS 2014), Versailles, France, October 2014](http://dl.acm.org/citation.cfm?id=2659820)
 
@@ -34,19 +34,20 @@ object Main extends App {
   val minTaskSet = MonoClustering.greedyBFSClustering(taskSet, DMresponseTimeAnalysis, MinDensity, None)
   
   /* Partitionned multiprocessor */
-    val taskSetMultiDep = ByLevel(taskSet, 0.65, 0.50)
-    val minFlows = MultiClustering.cluster(taskSetMultiDep, GlobalHeuristic, EDFqPA, MinDensity, EDFqPA, None)
+   val taskSetMultiDep = ByLevel(taskSet, 0.65, 0.50)
+   val minFlows = MultiClustering.cluster(taskSetMultiDep, GlobalHeuristic, EDFqPA, MinDensity, EDFqPA, None)
   
 }
 ```
 
 ## Licence
 
-**ttc** is under [CeCILL](http://www.cecill.info/index.en.html) licence
+**ttc** is under [CeCILL](http://www.cecill.info/index.en.html) licence<br />
 CeCILL licence is compatible with GNU GPL
 
-Copyright CNRS - CRIStAL Laboratory - Emeraude Team
+Copyright CNRS - CRIStAL Laboratory - Emeraude Team<br />
 contributor: Antoine Bertout (2012-2015)
+
 Copyright Antoine Bertout (2015-2016) 
 
 bertout.antoine@gmail.com
