@@ -46,8 +46,8 @@ import scala.language.postfixOps
 
 
 trait EDFSchedTest extends SchedTest with SchedTestMethod{
-  override def RTA(taskSet: TaskSet): Boolean = EDFresponseTimeAnalysisSpuri(taskSet)
-  override def suffTest(taskSet: TaskSet): Boolean = EDFsufficientTestDevi(taskSet)
+  override def RTA(taskSet: TaskSet): (Boolean, TaskSet) = EDFresponseTimeAnalysisSpuri(taskSet)
+  override def suffTest(taskSet: TaskSet): Boolean = EDFsufficientTestDevi(taskSet)._1
   override def toString: String = "EDF"
 
 
@@ -168,12 +168,14 @@ object EDFresponseTimeAnalysisGuan extends EDFSchedTest with ResponseTimeAnalysi
     * @param taskSet taskSet
     * @return true if the system is schedulable false otherwise
     */
-  def apply(taskSet: TaskSet): Boolean = {
-    if (taskSet.uFactor > 1) return false
+  def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
+    if (taskSet.uFactor > 1) return (false, taskSet)
 
     val sortedTaskSet = TaskSet(taskSet.set.sortWith(_.d < _.d),taskSet.tasksAndSuccs ) //sort by non-decreasing deadline
     val slackTimes = new ArrayBuffer[Int](sortedTaskSet.size)
     val worstCaseSlackTimes = new ArrayBuffer[Int](sortedTaskSet.size)
+    var outTaskSet = ArrayBuffer[Task]()
+
 
     //Use later to compute delta values (all abs deadlines)
     val allCurrentAbsDl: Array[Int] = Array.ofDim(sortedTaskSet.size)
@@ -181,7 +183,7 @@ object EDFresponseTimeAnalysisGuan extends EDFSchedTest with ResponseTimeAnalysi
     var firstMinIdx = 0
 
     for(i <- 0 until sortedTaskSet.size){
-      if (sortedTaskSet.set(i).d < 0) return false //because encoding can create deadline smaller to zero
+      if (sortedTaskSet.set(i).d < 0) return (false, taskSet) //because encoding can create deadline smaller to zero
 
       //init with very large values (theoretically infinity)
       slackTimes += Int.MaxValue
@@ -207,7 +209,7 @@ object EDFresponseTimeAnalysisGuan extends EDFSchedTest with ResponseTimeAnalysi
         val mbf = try {
           mixedBoundFunction(sortedTaskSet, delta, 0)
         } catch {
-          case _:Throwable => return false
+          case _:Throwable => return (false, taskSet)
         }
         var gNew: Int = pseudoInverseSbf(delta, delta, mbf )
         while(gNew != gOld){
@@ -215,15 +217,12 @@ object EDFresponseTimeAnalysisGuan extends EDFSchedTest with ResponseTimeAnalysi
           val mbf = try {
             mixedBoundFunction(sortedTaskSet, delta, gOld)
           } catch {
-            case _:Throwable => return false
+            case _:Throwable => return (false,taskSet)
           }
           gNew = pseudoInverseSbf(delta, delta, mbf)
         }
-        //println(i, delta)
         slackTimes(i) = math.min(slackTimes(i), delta - gNew)
       }
-
-
 
       //Find the next absolute deadlines
       var minAbsDlIdx = 0
@@ -244,10 +243,12 @@ object EDFresponseTimeAnalysisGuan extends EDFSchedTest with ResponseTimeAnalysi
     for(j <- sortedTaskSet.size - 1 to 0 by -1){
       worstCaseSlackTimes(j) = slackTimes(j)
       sortedTaskSet.set(j).r = Some(sortedTaskSet.set(j).d - worstCaseSlackTimes(j))
+      outTaskSet += sortedTaskSet.set(j).copy(r =  sortedTaskSet.set(j).r)
       if(j > 0)
         slackTimes(j - 1) = math.min(slackTimes(j), slackTimes(j - 1))
     }
-    !sortedTaskSet.set.exists(task => task.r.getOrElse(0) > task.d || task.r.getOrElse(0) < 0)
+    val finalTaskSet = TaskSet(outTaskSet, taskSet.tasksAndSuccs)
+    (!outTaskSet.exists(task => task.r.getOrElse(0) > task.d || task.r.getOrElse(0) < 0), finalTaskSet)
   }
   /**
     * Implementation of the pseudo-inverse supply bound function  for a periodic ressource
@@ -322,15 +323,17 @@ object EDFresponseTimeAnalysisSpuri extends EDFSchedTest with ResponseTimeAnalys
    * @param taskSet task set
    * @return
    */
-  def apply(taskSet: TaskSet): Boolean = {
+  def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
 
     val l = getMaximumBusyPeriodSize(taskSet)
     var lastRTValue,newRTValue, responseTime,maxResponseTime, intf: Int = 0
     var fixedPointReached: Boolean = false
+    var outTaskSet = ArrayBuffer[Task]()
+
 
     //C'est par tâche par a
     for (task <- taskSet.set) {
-      if(task.d < 0) return false //because encoding can create deadline smaller to zero
+      if(task.d < 0) return (false, taskSet) //because encoding can create deadline smaller to zero
 
       for (a <- 0 to l - task.c){
         lastRTValue = 0
@@ -365,12 +368,12 @@ object EDFresponseTimeAnalysisSpuri extends EDFSchedTest with ResponseTimeAnalys
         if (responseTime > maxResponseTime)
           maxResponseTime = responseTime
       }
-      task.r = Some(maxResponseTime)
+      outTaskSet += task.copy(r = Some(maxResponseTime))
       if(maxResponseTime > task.d)
-        return false
+        return (false, taskSet)
       maxResponseTime = 0
     }
-    true
+    (true, TaskSet(outTaskSet, taskSet.tasksAndSuccs))
   }
 
   /**
@@ -433,7 +436,7 @@ object EDFsufficientTestDevi extends EDFSchedTest {
    * @return
    */
 
-  def apply(taskSet: TaskSet): Boolean = {
+  def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
 
 
     var task: Task = null
@@ -452,15 +455,13 @@ object EDFsufficientTestDevi extends EDFSchedTest {
 
       val finaltest = test + 1 / newTaskSet.set(i).d.toFloat * test2
       if (finaltest > 1)
-        return false
+        return (false, taskSet)
 
       test = 0
       test2 = 0
     }
-    true
-
+    (true, taskSet)
   }
-
 }
 
 
@@ -472,10 +473,10 @@ object EDFqPA extends EDFSchedTest{
     * @param taskSet task set
     * @return
     */
-  def apply(taskSet: TaskSet): Boolean = {
+  def apply(taskSet: TaskSet): (Boolean,TaskSet) = {
 
     //Step 1,compute utilization factor (note that it won't change in our case cause we do not modify periods)
-    if(taskSet.uFactor > 1) return false
+    if(taskSet.uFactor > 1) return (false, taskSet)
 
     //Step 2, compute L_a upper bound, we must check later that that L_b is not always better with relative deadlines
     var la: Int = 0
@@ -529,8 +530,8 @@ object EDFqPA extends EDFSchedTest{
     }
 
     if (ht <= Dmin)
-      return true
-    false
+      return (true, taskSet)
+    (false, taskSet)
   }
 
 
@@ -542,8 +543,8 @@ object EDFqPA extends EDFSchedTest{
      * @param taskSet task set
      * @return
      */
-    def apply(taskSet: TaskSet): Boolean = {
-      if (taskSet.uFactor > 1) return false
+    def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
+      if (taskSet.uFactor > 1) return (false, taskSet)
       for (i <- taskSet.set.indices) {
         val copiedTaskSet = TaskSet(set = taskSet.set.map(_.copy()))
         val syncFixedTask = copiedTaskSet.set(i)
@@ -580,7 +581,7 @@ object EDFqPA extends EDFSchedTest{
         while (l <= lStar) {
           //println(l+","+demandFunction(newTaskSet, 0, lStar))
           if (demandFunction(newTaskSet, 0, l) > l)
-            return false
+            return (false, taskSet)
 
           //Find the next absolute deadlines
           var minAbsDlIdx = 0
@@ -598,9 +599,8 @@ object EDFqPA extends EDFSchedTest{
           }
           l = minAbsDl
         }
-        //println(newTaskSet)
       }
-      true
+      (true, taskSet)
     }
 
   }

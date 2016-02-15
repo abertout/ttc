@@ -41,12 +41,12 @@ package main.scala.scheduling
 import main.scala.taskmodel.TaskSet
 
 
-trait SchedTest extends (TaskSet => Boolean)
+trait SchedTest extends (TaskSet => (Boolean, TaskSet))
 trait ResponseTimeAnalysis
 
 trait SchedTestMethod {
   def toString: String
-  def RTA(taskSet: TaskSet): Boolean
+  def RTA(taskSet: TaskSet): (Boolean, TaskSet)
   def suffTest(taskSet: TaskSet): Boolean
 }
 

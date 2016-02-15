@@ -176,7 +176,7 @@ object MultiClustering {
         val updatedFlows: Array[TaskSet] = resultFlows.updated(currFlowIdx, updatedFlow)
         val updatedEncFlows =  updatedFlows.map(ts => updatedEncTaskSet.restrictedTo(ts.set:_*))
 
-        val nonSched = updatedEncFlows.exists(!schedTest(_))
+        val nonSched = updatedEncFlows.exists(!schedTest(_)._1)
 
         if (!nonSched) {              //If task set is schedulable
           schedulableChildren += ((updatedTaskSet, updatedFlows))

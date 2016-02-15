@@ -112,7 +112,7 @@ object MonoClustering {
       val newTaskSet = comp.fusion(ts.set(ii), ts.set(jj), dl)
       val newEncodedTaskSet = Encoding.predsEncoding(newTaskSet) //After fusion we ensure that no redundant edge exist
 
-      if (schedTest(newEncodedTaskSet)) {
+      if (schedTest(newEncodedTaskSet)._1) {
         //If task set is schedulable
         schedulableChildren += newTaskSet
       }

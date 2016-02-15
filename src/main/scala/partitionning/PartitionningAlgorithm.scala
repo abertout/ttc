@@ -195,7 +195,7 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
       val expFlow: Seq[Task] = flowsByDecUFactor(i) ++ cp
       val flowTaskSet: TaskSet = taskSet.restrictedTo(expFlow:_*) //create a new task set in adding the task to the current flow
       val encflowTaskSet = Encoding.predsEncoding(flowTaskSet)
-      if(schedTest(encflowTaskSet)){
+      if(schedTest(encflowTaskSet)._1){
         return flowsByDecUFactor.updated(i, expFlow)
       }
     }

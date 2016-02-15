@@ -40,10 +40,12 @@ package main.scala.scheduling
 
 import main.scala.taskmodel.{TaskSet, Task}
 
+import scala.collection.mutable.ArrayBuffer
+
 
 trait DMSchedTest extends SchedTest with SchedTestMethod{
-  override def RTA(taskSet: TaskSet): Boolean = DMresponseTimeAnalysis(taskSet)
-  override def suffTest(taskSet: TaskSet): Boolean = DMsufficientSchedulabilityTest(taskSet)
+  override def RTA(taskSet: TaskSet): (Boolean, TaskSet) = DMresponseTimeAnalysis(taskSet)
+  override def suffTest(taskSet: TaskSet): Boolean = DMsufficientSchedulabilityTest(taskSet)._1
   override def toString: String = "DM"
 }
 
@@ -54,18 +56,20 @@ object DMresponseTimeAnalysis extends DMSchedTest with ResponseTimeAnalysis{
    * results that will be recomputed
    * Joseph, M., & Pandya, P. (1986). Finding response times in a real-time system. The Computer Journal, 29(5), 390-395.
    * Audsley, N. C., Burns, A., Richardson, M. F., & Wellings, A. J. (1990). Deadline monotonic scheduling. University of York, Department of Computer Science.
+ *
    * @param taskSet task set
    * @return
    */
-  def apply(taskSet: TaskSet): Boolean = {
+  def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
     //Sort task set by increasing deadline order as noticed in DM
     val newTaskSet = new TaskSet(set = taskSet.set.sortWith((t1, t2) => t1.d < t2.d), taskSet.tasksAndSuccs)
     var task, task2: Task = null
     var lastRTValue, newRTValue, responseTime: Int = 0
     var fixedPointReached: Boolean = false
+    var outTaskSet = ArrayBuffer[Task]()
 
     for (i <- newTaskSet.set.indices) {
-      if(newTaskSet.set(i).d < 0) return false //because encoding can create deadline smaller to zero
+      if(newTaskSet.set(i).d < 0) return (false, taskSet) //because encoding can create deadline smaller to zero
       task = newTaskSet.set(i)
       lastRTValue = task.c
       newRTValue = task.c
@@ -77,7 +81,7 @@ object DMresponseTimeAnalysis extends DMSchedTest with ResponseTimeAnalysis{
           newRTValue +=  value
         }
         if(newRTValue > task.d){
-          return false
+          return (false, taskSet)
         }
 
         if(lastRTValue == newRTValue)
@@ -89,9 +93,9 @@ object DMresponseTimeAnalysis extends DMSchedTest with ResponseTimeAnalysis{
       }
       fixedPointReached = false
       responseTime = newRTValue
-      task.r = Some(responseTime)
+      outTaskSet += task.copy(r = Some(responseTime))
     }
-    true
+    (true, TaskSet(outTaskSet, taskSet.tasksAndSuccs))
   }
 }
 
@@ -101,11 +105,12 @@ object DMsufficientSchedulabilityTest extends DMSchedTest{
   /**
    * Implements Audsly sufficient schedulability test in O(n) complexity
    * Audsley, N. C., Burns, A., Richardson, M. F., & Wellings, A. J. (1990). Deadline monotonic scheduling. University of York, Department of Computer Science.
+ *
    * @param taskSet task set
    * @return true if the task set is schedulable considering the sufficient test
    */
 
-  def apply(taskSet: TaskSet): Boolean = {
+  def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
     //Sort task set by increasing deadline order as noticed in DM
     val newTaskSet = new TaskSet(set = taskSet.set.sortWith((t1, t2) => t1.d < t2.d))
 
@@ -121,10 +126,10 @@ object DMsufficientSchedulabilityTest extends DMSchedTest{
       test = task.c / task.d.toFloat + intf / task.d.toFloat
 
       if (test > 1)
-        return false
+        return (false, taskSet)
       intf = 0
       test = 0
     }
-    true
+    (true, taskSet)
   }
 }

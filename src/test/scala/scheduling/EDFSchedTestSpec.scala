@@ -53,7 +53,7 @@ class EDFSchedTestSpec extends UnitSpec{
     new {
 
       val EDFsched = new EDFSchedTest {
-        override def apply(v1: TaskSet): Boolean = true
+        override def apply(v1: TaskSet): (Boolean, TaskSet) = (true, v1)
       }
 
       val tauA = Task("a", 21, 347, 720)
