@@ -59,7 +59,7 @@ object DMresponseTimeAnalysis extends DMSchedTest with ResponseTimeAnalysis{
    */
   def apply(taskSet: TaskSet): Boolean = {
     //Sort task set by increasing deadline order as noticed in DM
-    val newTaskSet = new TaskSet(set = taskSet.set.sortWith((t1, t2) => t1.d < t2.d))
+    val newTaskSet = new TaskSet(set = taskSet.set.sortWith((t1, t2) => t1.d < t2.d), taskSet.tasksAndSuccs)
     var task, task2: Task = null
     var lastRTValue, newRTValue, responseTime: Int = 0
     var fixedPointReached: Boolean = false

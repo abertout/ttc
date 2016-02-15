@@ -41,6 +41,7 @@ package main.scala.scheduling
 import main.scala.taskmodel.{Task, TaskSet}
 import main.scala.utils.Numbers
 
+import scala.collection.mutable.ArrayBuffer
 import scala.language.postfixOps
 
 
@@ -54,7 +55,8 @@ trait EDFSchedTest extends SchedTest with SchedTestMethod{
 
   /**
    *  Implementation of the cumulative request bound function (rbf) that quantifies the maximum cumulative execution requests by jobs of a set of tasks within interval t
-   * @param taskSet the set of tasks
+    *
+    * @param taskSet the set of tasks
    * @param t the time interval from 0 to t
    * @return
    */
@@ -63,7 +65,8 @@ trait EDFSchedTest extends SchedTest with SchedTestMethod{
   /**
    * Implementation of the request bound function (rbf) that quantifies the maximum cumulative execution requests by jobs of a task within interval t
    * BEFORE The formula orginally works for interval [0,t) then we add 1 to consider [0,t]
-   * @param task the task
+    *
+    * @param task the task
    * @param t the time interval from 0 to t
    * @return
    */
@@ -78,7 +81,8 @@ trait EDFSchedTest extends SchedTest with SchedTestMethod{
   /**
    * Implementation of the demand bound function (dbf)  that quantifies the maximum cumulative execution requests by jobs of a set of tasks respecting their absolute deadlines within interval t
    * Baruah, S. K., Mok, A. K., & Rosier, L. E. (1990, December). Preemptively scheduling hard-real-time sporadic tasks on one processor. In Real-Time Systems Symposium, 1990. Proceedings., 11th (pp. 182-190). IEEE.
-   * @param taskSet the set of tasks
+    *
+    * @param taskSet the set of tasks
    * @param t the time interval from 0 to t
    * @return the demand bound function for the given interval t
    */
@@ -87,7 +91,8 @@ trait EDFSchedTest extends SchedTest with SchedTestMethod{
   /**
    * Implementation of the demand bound function (dbf)  that quantifies the maximum cumulative execution requests by jobs of a task respecting its absolute deadlines within interval t
    * Baruah, S. K., Mok, A. K., & Rosier, L. E. (1990, December). Preemptively scheduling hard-real-time sporadic tasks on one processor. In Real-Time Systems Symposium, 1990. Proceedings., 11th (pp. 182-190)
-   * @param task the task
+    *
+    * @param task the task
    * @param t  the time interval from 0 to t
    * @return
    */
@@ -97,7 +102,8 @@ trait EDFSchedTest extends SchedTest with SchedTestMethod{
   /**
    * Implementation of the mixed bound function (mbf) that quantifies the maximum cumulative execution request by job within interval t2 having absolute deadline within t1 (t2 >= t1 >= 0)
    * Guan, N., & Yi, W. (2014, March). General and efficient response time analysis for EDF scheduling. In Proceedings of the conference on Design, Automation & Test in Europe (p. 255). European Design and Automation Association.
-   * @param taskSet the set of tasks
+    *
+    * @param taskSet the set of tasks
    * @param t1 the first interval (the largest)
    * @param t2 the second interval (the shortest)
    * @return the mixed bound function for the given interval t
@@ -125,7 +131,8 @@ trait EDFSchedTest extends SchedTest with SchedTestMethod{
   /**
    * Implementation of the demand function (df) that quantifies the amount of time demanded by the task in the interval [t1, t2)
    * Baruah, S. K., Mok, A. K., & Rosier, L. E. (1990, December). Preemptively scheduling hard-real-time sporadic tasks on one processor. In Real-Time Systems Symposium, 1990. Proceedings., 11th (pp. 182-190)
-   * @param task the task
+    *
+    * @param task the task
    * @param t1 start of the interval included
    * @param t2 end of the interval excluded
    * @return
@@ -135,7 +142,8 @@ trait EDFSchedTest extends SchedTest with SchedTestMethod{
   /**
    * Implementation of the demand function (df) that quantifies the amount of time demanded by a task set in the interval [t1, t2)
    * Baruah, S. K., Mok, A. K., & Rosier, L. E. (1990, December). Preemptively scheduling hard-real-time sporadic tasks on one processor. In Real-Time Systems Symposium, 1990. Proceedings., 11th (pp. 182-190)
-   * @param taskSet the set of tasks
+    *
+    * @param taskSet the set of tasks
    * @param t1 start of the interval included
    * @param t2 end of the interval excluded
    * @return
@@ -148,9 +156,160 @@ trait EDFSchedTest extends SchedTest with SchedTestMethod{
   }
 
 }
-
+//TODO Only works for taskSet with different relative deadlines
 object EDFresponseTimeAnalysisGuan extends EDFSchedTest with ResponseTimeAnalysis{
-  def apply(taskSet: TaskSet): Boolean = ???
+  /**
+    *Implements Response Time Analysis for EDF (exact test)
+    *Made for periodic ressource model then here sbf(bound,bound,x) = x and inverseSbf(bound, bound, x) = x because we consider full ressource model
+    *Only for synchronous task set
+    *Guan, N., & Yi, W. (2014, March). General and efficient response time analysis for EDF scheduling.
+    *In Proceedings of the conference on Design, Automation & Test in Europe (p. 255). European Design and Automation Association.
+ *
+    * @param taskSet taskSet
+    * @return true if the system is schedulable false otherwise
+    */
+  def apply(taskSet: TaskSet): Boolean = {
+    if (taskSet.uFactor > 1) return false
+
+    val sortedTaskSet = TaskSet(taskSet.set.sortWith(_.d < _.d),taskSet.tasksAndSuccs ) //sort by non-decreasing deadline
+    val slackTimes = new ArrayBuffer[Int](sortedTaskSet.size)
+    val worstCaseSlackTimes = new ArrayBuffer[Int](sortedTaskSet.size)
+
+    //Use later to compute delta values (all abs deadlines)
+    val allCurrentAbsDl: Array[Int] = Array.ofDim(sortedTaskSet.size)
+    var firstMin = sortedTaskSet.set.head.d
+    var firstMinIdx = 0
+
+    for(i <- 0 until sortedTaskSet.size){
+      if (sortedTaskSet.set(i).d < 0) return false //because encoding can create deadline smaller to zero
+
+      //init with very large values (theoretically infinity)
+      slackTimes += Int.MaxValue
+      worstCaseSlackTimes += -1
+
+      allCurrentAbsDl(i) = sortedTaskSet.set(i).d  //Use to compute delta values (all abs deadlines)
+      if(allCurrentAbsDl(i) < firstMin){
+        firstMin = allCurrentAbsDl(i)
+        firstMinIdx = i
+      }
+    }
+    val maximumBound = maximumBusyPeriodSize(sortedTaskSet) + sortedTaskSet.set.last.d
+    var delta = 0
+
+    delta = firstMin
+    var i = 0
+    while(delta < maximumBound) {
+
+      if((i + 1) < sortedTaskSet.set.size && delta >= sortedTaskSet.set(i + 1).d)
+        i += 1
+      if((delta - pseudoInverseSbf(delta, delta, demandBoundFunction(sortedTaskSet, delta))) < slackTimes(i)){
+        var gOld: Int = 0
+        val mbf = try {
+          mixedBoundFunction(sortedTaskSet, delta, 0)
+        } catch {
+          case _:Throwable => return false
+        }
+        var gNew: Int = pseudoInverseSbf(delta, delta, mbf )
+        while(gNew != gOld){
+          gOld = gNew
+          val mbf = try {
+            mixedBoundFunction(sortedTaskSet, delta, gOld)
+          } catch {
+            case _:Throwable => return false
+          }
+          gNew = pseudoInverseSbf(delta, delta, mbf)
+        }
+        //println(i, delta)
+        slackTimes(i) = math.min(slackTimes(i), delta - gNew)
+      }
+
+
+
+      //Find the next absolute deadlines
+      var minAbsDlIdx = 0
+      var minAbsDl = delta
+      while (minAbsDl == delta){
+        minAbsDl = Int.MaxValue
+        for (i <- 0 until sortedTaskSet.size) {
+          if (allCurrentAbsDl(i) < minAbsDl) {
+            minAbsDlIdx = i
+            minAbsDl = allCurrentAbsDl(i)
+          }
+        }
+        allCurrentAbsDl(minAbsDlIdx) += sortedTaskSet.set(minAbsDlIdx).t
+      }
+      delta = minAbsDl
+    }
+
+    for(j <- sortedTaskSet.size - 1 to 0 by -1){
+      worstCaseSlackTimes(j) = slackTimes(j)
+      sortedTaskSet.set(j).r = Some(sortedTaskSet.set(j).d - worstCaseSlackTimes(j))
+      if(j > 0)
+        slackTimes(j - 1) = math.min(slackTimes(j), slackTimes(j - 1))
+    }
+    !sortedTaskSet.set.exists(task => task.r.getOrElse(0) > task.d || task.r.getOrElse(0) < 0)
+  }
+  /**
+    * Implementation of the pseudo-inverse supply bound function  for a periodic ressource
+    * Give the maximal interval length needed for a certain amount of capacity x
+    *
+    * @param period period of the ressource
+    * @param allocationTime allocation time of the ressource
+    * @return  maximal interval length required
+    *
+    */
+  def inverseSbf(period: Int, allocationTime: Int, x: Int): Int = { //((x + period - allocationTime) * (math.ceil(x / allocationTime.toDouble) + 1)).toInt
+    if(period == allocationTime) //If y unit of time are available at each date y then all interval x is available
+      return x
+    val eps =
+      if(x - allocationTime * math.floor(x / allocationTime.toDouble) > 0)
+        period - allocationTime + x - allocationTime * math.floor(x / allocationTime.toDouble)
+      else 0
+    ((period - allocationTime) + period * math.floor(x / allocationTime.toDouble) + eps).toInt
+  }
+
+  /**
+    * Implementation of the pseudo-inverse supply bound function  for a periodic ressource
+    * Give the minimal interval length needed for a certain amount of capacity x
+    *
+    * @param period period of the ressource
+    * @param allocationTime allocation time of the ressource
+    * @return  minimal interval length required
+    */
+  def pseudoInverseSbf(period: Int, allocationTime: Int, x: Int): Int = inverseSbf(period, allocationTime, x)
+
+  /**
+    * Compute the maximum busy period size for EDF from definition given by Spuri
+ *
+    * @param taskSet taskSet
+    * @return the maximum busy period size
+    */
+  def maximumBusyPeriodSize(taskSet: TaskSet): Int = {
+    var fixedPointReached: Boolean = false
+    var lastWiValue, newWiValue: Int = 0
+
+    var l: Int = 0
+    val l0: Int = taskSet.set.map( _.c ) sum
+
+    lastWiValue = l0
+
+    while(!fixedPointReached){
+
+      for (task <- taskSet.set)
+        newWiValue +=  math.ceil(lastWiValue / task.t.toFloat).toInt * task.c
+
+      if(lastWiValue == newWiValue){
+        fixedPointReached = true
+        l = newWiValue
+      }
+      else{
+        lastWiValue = newWiValue
+        newWiValue = 0
+      }
+    }
+    l
+  }
+
 }
 
 
@@ -159,6 +318,7 @@ object EDFresponseTimeAnalysisSpuri extends EDFSchedTest with ResponseTimeAnalys
    *  Implements Response Time Analysis for EDF  of Spuri with only the synchronous case (exact test with exponential complexity)
    *  Spuri, M. (1996). Analysis of deadline scheduled real-time systems.
    *  Does not compute all the response times to tasks if the taskSet is not schedulable. It stops before.
+ *
    * @param taskSet task set
    * @return
    */
@@ -215,6 +375,7 @@ object EDFresponseTimeAnalysisSpuri extends EDFSchedTest with ResponseTimeAnalys
 
   /**
    * Compute the maximum busy period size for EDF from definition given by Spuri
+ *
    * @param taskSet task set
    * @return
    */
@@ -267,6 +428,7 @@ object EDFsufficientTestDevi extends EDFSchedTest {
   /**
    * Implements Devi sufficient schedulability test in O(n) complexity
    * Devi, U. C. (2003, July). An improved schedulability test for uniprocessor periodic task systems. In Real-Time Systems, 2003. Proceedings. 15th Euromicro Conference on (pp. 23-30). IEEE.
+ *
    * @param taskSet task set
    * @return
    */
@@ -306,6 +468,7 @@ object EDFqPA extends EDFSchedTest{
 
   /** Implement QPA algorithm from Zhang et Burns that provide an exact boolean test
     * Zhang, F., & Burns, A. (2009). Schedulability analysis for real-time systems with EDF scheduling. Computers, IEEE Transactions on, 58(9), 1250-1258.
+ *
     * @param taskSet task set
     * @return
     */
@@ -375,6 +538,7 @@ object EDFqPA extends EDFSchedTest{
     /**
      * Implements feasability analysis for asynchronous tasks (sufficient schedulability test for EDF) with one fixed task
      * Pellizzoni, R., & Lipari, G. (2005). Feasibility analysis of real-time periodic tasks with offsets. Real-Time Systems, 30(1-2), 105-128.
+ *
      * @param taskSet task set
      * @return
      */

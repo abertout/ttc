@@ -57,10 +57,10 @@ object Main extends App {
   val taskSetMulti = TaskSetGenerator.genTaskSet(200,2.4d,0.0,1.0,asynchronous = false,DistinctPeriods,10,RandFixedSum)
   val taskSetMultiDep = ByLevel(taskSetMulti, 0.65, 0.50)
 
-
-  //println(Export.genScalaTaskSetDecl(taskSetMultiDep,"taskSetM"))
   val minFlows = MultiClustering.cluster(taskSetMultiDep, GlobalHeuristic, EDFqPA, MinDensity, EDFqPA, None)
-  println(minFlows.size,minFlows.map(_.set.size).sum)
 
+  //TODO
+  //Créer une nouvelle branche pour que les analyses de temps de réponse ne modifie pas le taskSet de base (pas d'effet de bord)
+  //Tester à chaque fois si c'est un RTA avec un match ou toujours retourner (Boolean,TaskSet) dans les schedTest?
 
 }

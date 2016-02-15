@@ -31,11 +31,11 @@ object Main extends App {
   val taskSet: TaskSet = TaskSetParser.taskSetFromFile(path)
   
   /* Uniprocessor */
-  val minTaskSet = MonoClustering.greedyBFSClustering(taskSet, DMresponseTimeAnalysis, MinDensity, None)
+  val minTaskSet = MonoClustering.cluster(taskSet, DMresponseTimeAnalysis, MinDensity, Some(DMresponseTimeAnalysis))
   
   /* Partitionned multiprocessor */
-   val taskSetMultiDep = ByLevel(taskSet, 0.65, 0.50)
-   val minFlows = MultiClustering.cluster(taskSetMultiDep, GlobalHeuristic, EDFqPA, MinDensity, EDFqPA, None)
+  val taskSetMultiDep = ByLevel(taskSet, 0.65, 0.50)
+  val minFlows = MultiClustering.cluster(taskSetMultiDep, GlobalHeuristic, EDFqPA, MinDensity, EDFqPA, None)
   
 }
 ```

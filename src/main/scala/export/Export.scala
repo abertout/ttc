@@ -293,7 +293,7 @@ object Export{
     }
 
     val dep = taskSet.tasksAndSuccs match {
-      case Some(dep) => ", Some(dep))"
+      case Some(d) => ", Some(dep))"
       case _ => ")"
     }
 

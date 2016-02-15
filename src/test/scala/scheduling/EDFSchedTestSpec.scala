@@ -38,6 +38,9 @@
 
 package test.scala.scheduling
 
+import main.scala.export.Export
+import main.scala.taskgeneration.{RandFixedSum, UUnifast, TaskSetGenerator}
+import taskgeneration.DistinctPeriods
 import test.scala.UnitSpec
 import main.scala.scheduling.{EDFresponseTimeAnalysisGuan, EDFresponseTimeAnalysisSpuri, EDFsufficientTestDevi, EDFSchedTest}
 import main.scala.taskmodel.{Task, TaskSet}
@@ -77,8 +80,8 @@ class EDFSchedTestSpec extends UnitSpec{
       val taskSet = TaskSet(set = Seq(tauA, tauB, tauC, tauD, tauE, tauF, tauG, tauH, tauI, tauJ, tauK, tauL, tauM, tauN, tauO, tauP, tauQ, tauR, tauS, tauT))
 
       /**
-       * Spuri article example of table 1
-       */
+        * Spuri article example of table 1
+        */
       val tau1 = Task("1", 1, 4, 4, 11)
       val tau2 = Task("2", 2, 9, 6, 6)
       val tau3 = Task("3", 2, 6, 8, 9)
@@ -95,8 +98,8 @@ class EDFSchedTestSpec extends UnitSpec{
 
 
       /**
-       * Guan article example III.3
-       */
+        * Guan article example III.3
+        */
       val tau1Guan = Task("1", 1, 4, 4)
       val tau2Guan = Task("2", 1, 12 ,12)
       val tau3Guan = Task("3", 3, 16, 16)
@@ -104,8 +107,8 @@ class EDFSchedTestSpec extends UnitSpec{
       val guanTaskSet = TaskSet(set = Seq(tau1Guan, tau2Guan, tau3Guan))
 
       /**
-       * Zhang & Burns QPA Example
-       */
+        * Zhang & Burns QPA Example
+        */
 
       val t1 = Task("1", 6000, 18000, 31000)
       val t2 = Task("2", 2000, 9000, 9800)
@@ -119,6 +122,60 @@ class EDFSchedTestSpec extends UnitSpec{
       val zhangBurnsTaskSet = TaskSet(set = Seq(t1, t2, t3, t4, t5, t6, t7, t8))
 
     }
+
+  def fixture2 =
+    new {
+      /* Response times for EDF computed via SimSo and Cheddar */
+      val a = Task("a", 1, 468, 600, 0, Some(202))
+      val b = Task("b", 8576, 131434, 138600, 0, Some(114420))
+      val c = Task("c", 5, 404, 600, 0, Some(132))
+      val d = Task("d", 17, 172, 600, 0, Some(17))
+      val e = Task("e", 408, 1375, 7700, 0, Some(1133))
+      val f = Task("f", 1638, 67416, 138600, 0, Some(23035))
+      val g = Task("g", 96, 2597, 7700, 0, Some(1252))
+      val h = Task("h", 2773, 56818, 138600, 0, Some(21328))
+      val i = Task("i", 18129, 75790, 138600, 0, Some(48360))
+      val j = Task("j", 11787, 103482, 138600, 0, Some(81722))
+      val k = Task("k", 46, 7659, 7700, 0, Some(3973))
+      val l = Task("l", 147, 3673, 6300, 0, Some(1399))
+      val m = Task("m", 679, 922, 7700, 0, Some(719))
+      val n = Task("n", 2095, 44477, 138600, 0, Some(18293))
+      val o = Task("o", 8679, 34287, 138600, 0, Some(14831))
+      val p = Task("p", 2194, 3892, 138600, 0, Some(3679))
+      val q = Task("q", 13910, 95355, 138600, 0, Some(66101))
+      val r = Task("r", 242, 5835, 11550, 0, Some(3927))
+      val s = Task("s", 5500, 117607, 138600, 0, Some(89021))
+      val t = Task("t", 11098, 125965, 138600, 0, Some(103665))
+      val taskSet = TaskSet(set = Seq(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t))
+
+    }
+
+  def fixture3 =
+    new {
+      val a = Task("a", 1, 468, 600, 0, None)
+      val b = Task("b", 8576, 131434, 138600, 0, None)
+      val c = Task("c", 5, 404, 600, 0, None)
+      val d = Task("d", 17, 172, 600, 0, None)
+      val e = Task("e", 408, 1375, 7700, 0, None)
+      val f = Task("f", 1638, 67416, 138600, 0, None)
+      val g = Task("g", 96, 2597, 7700, 0, None)
+      val h = Task("h", 2773, 56818, 138600, 0, None)
+      val i = Task("i", 18129, 75790, 138600, 0, None)
+      val j = Task("j", 11787, 103482, 138600, 0, None)
+      val k = Task("k", 46, 7659, 7700, 0, None)
+      val l = Task("l", 147, 3673, 6300, 0, None)
+      val m = Task("m", 679, 922, 7700, 0, None)
+      val n = Task("n", 2095, 44477, 138600, 0, None)
+      val o = Task("o", 8679, 34287, 138600, 0, None)
+      val p = Task("p", 2194, 3892, 138600, 0, None)
+      val q = Task("q", 13910, 95355, 138600, 0, None)
+      val r = Task("r", 242, 5835, 11550, 0, None)
+      val s = Task("s", 5500, 117607, 138600, 0, None)
+      val t = Task("t", 11098, 125965, 138600, 0, None)
+      val taskSet = TaskSet(set = Seq(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t))
+
+    }
+
 
 
   "The sufficient schedulability of Devi" should "decide the schedulability of task set" in {
@@ -135,25 +192,46 @@ class EDFSchedTestSpec extends UnitSpec{
   "The exact schedulability test of Spuri" should "compute the right response times" in {
     val f = fixture
     val spuriTaskSet = f.spuriTaskSet
+    val taskSet = fixture3.taskSet
+    val taskSetWithR = fixture2.taskSet
 
+    val tt = TaskSetGenerator.genTaskSet(30, 0.75d, 0.0d, 1.0d, asynchronous = false, DistinctPeriods, 5, UUnifast)
+    println(EDFresponseTimeAnalysisSpuri(tt),tt.uFactor,tt.periodsLCM)
+    Export.toCheddarXml(tt, "EDF", "/tmp/EDF_ched.xml")
+    Export.toSimSoXml(tt, "EDF", "/tmp/EDF_sim.xml")
+    tt.set.foreach(task => println(task.name, task.r))
+    println(Export.genScalaTaskSetDecl(tt, "taskSet"))
 
-    //TODO vérifier pour chaque tâche pour spuri avec plus de tâches
+    EDFresponseTimeAnalysisSpuri(taskSet)
+    val diffR =  !taskSet.set.view.zip(taskSetWithR.set).forall {
+      case (t1, t2) => t1.r == t2.r
+    }
 
+    diffR shouldEqual false
     EDFresponseTimeAnalysisSpuri(spuriTaskSet) shouldEqual true
-    ???
-
   }
 
 
   "The exact schedulability test of Guan" should "compute the right response times" in {
     val f = fixture
+    val taskSet = fixture3.taskSet
+    val taskSetWithR = fixture2.taskSet
+
     val guanTaskSet = f.guanTaskSet
-
-
-    //TODO vérifier pour chaque tâche pour guan avec plus de tâches
-
     EDFresponseTimeAnalysisGuan(guanTaskSet) shouldEqual true
-    ???
+    EDFresponseTimeAnalysisGuan(taskSet)
+    val diffR =  !taskSet.set.view.zip(taskSetWithR.set).forall {
+      case (t1, t2) => t1.r == t2.r
+    }
+    println(taskSet.set.map(_.r.get))
+    println(taskSetWithR.set.map(_.r.get))
+
+    diffR shouldEqual false
+  }
+
+
+  it should "also be valid when some tasks have equal relative deadlines" in {
+  ???
   }
 
   "EDFSched" should "compute the right demand bound function (dbf)" in {

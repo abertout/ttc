@@ -39,9 +39,38 @@
 package test.scala.taskgeneration
 
 import main.scala.taskgeneration.{RandFixedSum, UUnifastDiscard, UUnifast}
+import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 
 class UGenerationSpec extends UnitSpec{
+
+  def fixture = {
+    new {
+      val a = Task("a", 3777, 15043, 39600, 37099, None)
+      val b = Task("b", 3742, 4598, 39600, 23165, None)
+      val c = Task("c", 181, 1115, 39600, 13429, None)
+      val d = Task("d", 1, 43, 60, 57, None)
+      val e = Task("e", 38, 219, 2100, 31, None)
+      val f = Task("f", 92, 641, 2100, 1181, None)
+      val g = Task("g", 7, 84, 120, 100, None)
+      val h = Task("h", 41, 536, 1050, 444, None)
+      val i = Task("i", 1, 18, 120, 18, None)
+      val j = Task("j", 5, 30, 60, 5, None)
+      val k = Task("k", 77, 301, 2100, 1644, None)
+      val l = Task("l", 318, 326, 2100, 940, None)
+      val m = Task("m", 7, 1011, 2100, 474, None)
+      val n = Task("n", 115, 208, 2100, 2024, None)
+      val o = Task("o", 61, 1720, 2100, 707, None)
+      val p = Task("p", 1, 118, 120, 103, None)
+      val q = Task("q", 1756, 37033, 39600, 38364, None)
+      val r = Task("r", 995, 16400, 39600, 27157, None)
+      val s = Task("s", 0, 32, 60, 37, None)
+      val t = Task("t", 711, 1327, 39600, 26565, None)
+
+      val taskSet = TaskSet(set = Seq(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t))
+    }
+  }
+
 
   "UUnifast method" should "generate unbiased task set utilization factors" in {
 
