@@ -42,7 +42,7 @@ import main.scala.export.Export
 import main.scala.taskgeneration.{RandFixedSum, UUnifast, TaskSetGenerator}
 import taskgeneration.DistinctPeriods
 import test.scala.UnitSpec
-import main.scala.scheduling.{EDFresponseTimeAnalysisGuan, EDFresponseTimeAnalysisSpuri, EDFsufficientTestDevi, EDFSchedTest}
+import main.scala.scheduling._
 import main.scala.taskmodel.{Task, TaskSet}
 
 
@@ -228,11 +228,7 @@ class EDFSchedTestSpec extends UnitSpec{
 
     diffR shouldEqual false
   }
-
-
-  it should "also be valid when some tasks have equal relative deadlines" in {
-  ???
-  }
+  
 
   "EDFSched" should "compute the right demand bound function (dbf)" in {
 
@@ -296,7 +292,6 @@ class EDFSchedTestSpec extends UnitSpec{
     val tau3 = Task("3", 3, 5, 10)
     val taskSet = TaskSet(set = Seq(tau1, tau2, tau3))
 
-    //TODO test that it's not min(dbf,rbf) but sum des min(dbfi,rbfi)
     intercept [IllegalArgumentException]{ EDFsched.mixedBoundFunction(taskSet, 5, 8) }
     intercept [IllegalArgumentException]{ EDFsched.mixedBoundFunction(taskSet, -1, 0) }
     intercept [IllegalArgumentException]{ EDFsched.mixedBoundFunction(taskSet, 5, -1) }

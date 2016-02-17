@@ -59,8 +59,5 @@ object Main extends App {
 
   val minFlows = MultiClustering.cluster(taskSetMultiDep, GlobalHeuristic, EDFqPA, MinDensity, EDFqPA, None)
 
-  //TODO
-  //Créer une nouvelle branche pour que les analyses de temps de réponse ne modifie pas le taskSet de base (pas d'effet de bord)
-  //Tester à chaque fois si c'est un RTA avec un match ou toujours retourner (Boolean,TaskSet) dans les schedTest?
 
 }
