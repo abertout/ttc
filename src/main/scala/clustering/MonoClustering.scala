@@ -38,7 +38,7 @@
 
 package main.scala.clustering
 
-import main.scala.scheduling.{ResponseTimeAnalysis, SchedTest, Encoding}
+import main.scala.scheduling.{Encoding, ResponseTimeAnalysis, SchedTest}
 import main.scala.taskmodel.TaskSet
 
 import scala.collection.mutable.ArrayBuffer

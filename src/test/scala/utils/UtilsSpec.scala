@@ -38,9 +38,9 @@
 
 package test.scala.utils
 
-import breeze.linalg.{DenseMatrix, DenseVector}
-import main.scala.utils.{Matrix, MapUtils, Numbers}
+import breeze.linalg.DenseVector
 import main.scala.utils.AllImplicits.SeqImprovements
+import main.scala.utils.{MapUtils, Matrix, Numbers}
 import test.scala.UnitSpec
 
 

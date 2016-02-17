@@ -38,10 +38,11 @@
 
 package clustering
 
-import main.scala.clustering.{ClusteringCompanion, ClusterDeadline, MonoClustering, CostFunction}
+import main.scala.clustering.{ClusterDeadline, ClusteringCompanion, CostFunction, MonoClustering}
 import main.scala.partitionning.PartitionningAlgorithm
 import main.scala.scheduling.{Encoding, ResponseTimeAnalysis, SchedTest}
 import main.scala.taskmodel.{Task, TaskSet}
+
 import scala.collection.mutable.ArrayBuffer
 
 object MultiClustering {

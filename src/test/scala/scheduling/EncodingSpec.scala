@@ -39,7 +39,7 @@
 package test.scala.scheduling
 
 import main.scala.scheduling.Encoding
-import main.scala.taskmodel.{TaskSet, Task}
+import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 class EncodingSpec extends UnitSpec{
 

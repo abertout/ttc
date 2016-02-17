@@ -42,11 +42,9 @@ import java.io.FileNotFoundException
 
 import main.scala.export.Export
 import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator}
-import main.scala.taskmodel.{TaskSet, Task}
-import taskgeneration.{ByLevel, DistinctPeriods}
+import main.scala.taskmodel.{Task, TaskSet}
+import taskgeneration.{ByLevel, LimitedHPDistinctPeriods}
 import test.scala.UnitSpec
-
-import scala.util.control.Exception
 
 
 class ExportSpec extends UnitSpec{
@@ -102,7 +100,7 @@ class ExportSpec extends UnitSpec{
 
 
   "the genScalaTaskSetDecl method" should "generate a string with all the scala declaration to form the task set" in {
-    val taskSetMulti = TaskSetGenerator.genTaskSet(50,3.4d,0.0,1.0,asynchronous = true,DistinctPeriods,10,RandFixedSum)
+    val taskSetMulti = TaskSetGenerator.genTaskSet(50,3.4d,0.0,1.0,asynchronous = true,LimitedHPDistinctPeriods,10,RandFixedSum)
     val withPredTaskSet = ByLevel(taskSetMulti, 0.65, 0.50)
     val decl = Export.genScalaTaskSetDecl(withPredTaskSet, "taskSet")
     ???

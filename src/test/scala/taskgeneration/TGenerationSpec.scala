@@ -38,14 +38,26 @@
 
 package taskgeneration
 
+
 import test.scala.UnitSpec
 
 
 class TGenerationSpec extends UnitSpec{
 
   "A set of n periods with limited HP " should "have m distincts periods" in {
-    val t = DistinctPeriods(20,10)
-
+    val t = LimitedHPDistinctPeriods(20,10)
+    ???
   }
 
+  "The random uniform number generator" should "generate n uniform random number" in {
+    val t = UniformDistinctPeriods.rndUniform(1, 1000, 100)
+    t.size shouldEqual 100
+    t.exists(value => value < 1 || value > 1000) shouldBe false
+  }
+
+
+  "A set of n uniformly distributed periods " should "have m distincts periods" in {
+    val t = UniformDistinctPeriods(20,10)
+   ???
+  }
 }

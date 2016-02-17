@@ -40,6 +40,7 @@ package taskgeneration
 
 import main.scala.taskmodel.{Task, TaskSet}
 import main.scala.utils.Numbers
+
 import scala.util.Random
 
 

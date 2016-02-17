@@ -38,7 +38,7 @@
 
 package test.scala.taskgeneration
 
-import main.scala.taskgeneration.{RandFixedSum, UUnifastDiscard, UUnifast}
+import main.scala.taskgeneration.{RandFixedSum, UUnifast, UUnifastDiscard}
 import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 

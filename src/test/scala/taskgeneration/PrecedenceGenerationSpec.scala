@@ -38,7 +38,7 @@
 
 package taskgeneration
 
-import main.scala.taskmodel.{TaskSet, Task}
+import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 
 

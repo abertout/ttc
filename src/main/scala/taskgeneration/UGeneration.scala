@@ -38,11 +38,11 @@
 
 package main.scala.taskgeneration
 
+import breeze.linalg.{DenseMatrix, DenseVector}
 import main.scala.utils.Matrix
 
 import scala.annotation.tailrec
 import scala.util.Random
-import breeze.linalg.{DenseMatrix, DenseVector}
 
 trait UGeneration extends ((Int, Double) => Vector[Double])
 

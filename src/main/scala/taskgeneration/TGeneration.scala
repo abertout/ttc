@@ -40,7 +40,6 @@ package taskgeneration
 
 import main.scala.utils.Numbers
 
-import scala.annotation.tailrec
 import scala.util.Random
 
 
@@ -54,38 +53,67 @@ trait TGeneration extends ((Int,Int) => Vector[Double]){
     Array(1, 1, 1, 1, 11)
   )
 
+
+  /**
+    * Based on Goossens, J., & Macq, C. (2001). Limitation of the hyper-period in real-time periodic task set generation.
+    * In Proceedings of the RTS Embedded System (RTS’01).
+    *
+    * @return a limited period
+    */
   def limitedHPPeriod: Double = {
     matrix.indices.foldLeft(1){
       case(acc,line) => acc * matrix(line)(Random.nextInt(matrix(line).length))
     }
   }
+
+
 }
 
-object DistinctPeriods extends TGeneration {
+object LimitedHPDistinctPeriods extends TGeneration {
 
   def apply(nTask: Int, nDiffPeriods: Int): Vector[Double] = {
-    /* Use: Goossens, J., & Macq, C. (2001). Limitation of the hyper-period in real-time periodic task set generation.
-    In Proceedings of the RTS Embedded System (RTS’01).
-    in limiting the maximum number of different periods as well
-    */
-
-
 
     def distinctPeriods(n: Int, seq: Seq[Double]): Seq[Double] = {
-      if(seq.size == n) return seq
+      if (seq.size == n) return seq
       val limitedP = limitedHPPeriod
-      if(!seq.contains(limitedP)) return distinctPeriods(n, seq.:+(limitedP))
+      if (!seq.contains(limitedP)) return distinctPeriods(n, seq.:+(limitedP))
       distinctPeriods(n, seq)
     }
+
     val dispPeriods = distinctPeriods(nDiffPeriods, Seq.empty)
     val occurences = Numbers.partitionsWithoutZero(dispPeriods.size, nTask)
 
-    val periods = (dispPeriods zip occurences).flatMap{
-      case (p, nb) =>  List.fill(nb)(p)
+    val periods = (dispPeriods zip occurences).flatMap {
+      case (p, nb) => List.fill(nb)(p)
     }.toVector
 
     Random.shuffle(periods)
   }
-
-
 }
+
+object UniformDistinctPeriods extends TGeneration {
+
+    def apply(nTask: Int, nDiffPeriods: Int): Vector[Double] = {
+
+      val dispPeriods = rndUniform(10, 1000, nDiffPeriods)
+      val occurences = Numbers.partitionsWithoutZero(dispPeriods.size, nTask)
+      val periods = (dispPeriods zip occurences).flatMap{
+        case (p, nb) =>  List.fill(nb)(p)
+      }
+      Random.shuffle(periods)
+    }
+
+    /**
+      * Draw samples from a uniform distribution.
+      * Samples are uniformly distributed over the half-open interval [low, high) .
+      * Identical to python method random.uniform from numpy library
+      *
+      * @param low lower bound
+      * @param high upper bound
+      * @param size number of samples
+      * @return a uniform distribution
+      */
+    def rndUniform(low: Int, high: Int, size: Int): Vector[Double] =
+      Vector.fill(size)(low + Random.nextInt(high))
+
+  }

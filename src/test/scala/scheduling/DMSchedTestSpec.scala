@@ -39,8 +39,8 @@
 package test.scala.scheduling
 
 
-import main.scala.scheduling.{DMsufficientSchedulabilityTest, DMresponseTimeAnalysis}
-import main.scala.taskmodel.{TaskSet, Task}
+import main.scala.scheduling.{DMresponseTimeAnalysis, DMsufficientSchedulabilityTest}
+import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 
 

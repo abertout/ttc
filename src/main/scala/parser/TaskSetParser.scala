@@ -38,9 +38,10 @@
 
 package main.scala.parser
 
-import java.io.{FileReader, FileNotFoundException}
+import java.io.{FileNotFoundException, FileReader}
 
-import main.scala.taskmodel.{TaskSet, Task}
+import main.scala.taskmodel.{Task, TaskSet}
+
 import scala.util.parsing.combinator.JavaTokenParsers
 
 abstract class Stmt

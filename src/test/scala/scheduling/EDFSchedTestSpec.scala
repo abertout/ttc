@@ -39,11 +39,11 @@
 package test.scala.scheduling
 
 import main.scala.export.Export
-import main.scala.taskgeneration.{RandFixedSum, UUnifast, TaskSetGenerator}
-import taskgeneration.DistinctPeriods
-import test.scala.UnitSpec
 import main.scala.scheduling._
+import main.scala.taskgeneration.{TaskSetGenerator, UUnifast}
 import main.scala.taskmodel.{Task, TaskSet}
+import taskgeneration.LimitedHPDistinctPeriods
+import test.scala.UnitSpec
 
 
 class EDFSchedTestSpec extends UnitSpec{
@@ -195,7 +195,7 @@ class EDFSchedTestSpec extends UnitSpec{
     val taskSet = fixture3.taskSet
     val taskSetWithR = fixture2.taskSet
 
-    val tt = TaskSetGenerator.genTaskSet(30, 0.75d, 0.0d, 1.0d, asynchronous = false, DistinctPeriods, 5, UUnifast)
+    val tt = TaskSetGenerator.genTaskSet(30, 0.75d, 0.0d, 1.0d, asynchronous = false, LimitedHPDistinctPeriods, 5, UUnifast)
     println(EDFresponseTimeAnalysisSpuri(tt),tt.uFactor,tt.periodsLCM)
     Export.toCheddarXml(tt, "EDF", "/tmp/EDF_ched.xml")
     Export.toSimSoXml(tt, "EDF", "/tmp/EDF_sim.xml")
@@ -223,12 +223,11 @@ class EDFSchedTestSpec extends UnitSpec{
     val diffR =  !taskSet.set.view.zip(taskSetWithR.set).forall {
       case (t1, t2) => t1.r == t2.r
     }
-    println(taskSet.set.map(_.r.get))
-    println(taskSetWithR.set.map(_.r.get))
+
 
     diffR shouldEqual false
   }
-  
+
 
   "EDFSched" should "compute the right demand bound function (dbf)" in {
 

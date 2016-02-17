@@ -39,10 +39,9 @@
 package test.scala.parser
 
 import java.io.FileNotFoundException
-import main.scala.parser.{TaskDecl, PredDecl, TaskSetParser}
-import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator}
-import main.scala.taskmodel.{TaskSet, Task}
-import taskgeneration.{ByLevel, DistinctPeriods}
+
+import main.scala.parser.{PredDecl, TaskSetParser}
+import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 
 

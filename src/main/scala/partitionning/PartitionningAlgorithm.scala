@@ -38,7 +38,7 @@
 
 package main.scala.partitionning
 
-import main.scala.scheduling.{SchedTest, Encoding}
+import main.scala.scheduling.{Encoding, SchedTest}
 import main.scala.taskmodel.{Task, TaskSet}
 
 import scala.annotation.tailrec

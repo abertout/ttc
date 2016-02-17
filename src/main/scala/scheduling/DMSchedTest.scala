@@ -38,7 +38,7 @@
 
 package main.scala.scheduling
 
-import main.scala.taskmodel.{TaskSet, Task}
+import main.scala.taskmodel.{Task, TaskSet}
 
 import scala.collection.mutable.ArrayBuffer
 

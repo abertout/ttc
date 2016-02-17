@@ -38,8 +38,8 @@
 
 package test.scala.taskgeneration
 
-import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator}
-import taskgeneration.DistinctPeriods
+import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator, UUnifast}
+import taskgeneration.LimitedHPDistinctPeriods
 import test.scala.UnitSpec
 
 
@@ -58,11 +58,36 @@ class TaskSetGeneratorSpec extends UnitSpec{
 
   "A task set generator" should "generate the task set correctly" in {
     val taskSet = TaskSetGenerator.genTaskSet(20, 3.0, dMin = 0.0d, dMax = 1.0d,
-      asynchronous = false, DistinctPeriods, 10,RandFixedSum )
+      asynchronous = false, LimitedHPDistinctPeriods, 10,RandFixedSum )
     taskSet.set.size shouldEqual 20
     taskSet.tasksAndSuccs shouldEqual None
     taskSet.set exists(_.o != 0) shouldEqual false
     taskSet.set.map(_.t).distinct.size shouldEqual 10
+  }
+
+  it should "not derive too much from initial utilization factor" in {
+
+    val u1 = 0.9d
+    val taskSet = TaskSetGenerator.genTaskSet(1000, u1, dMin = 0.0d, dMax = 1.0d,
+      asynchronous = false, LimitedHPDistinctPeriods, 10,UUnifast )
+
+    val inRange = taskSet.uFactor >= u1 - TaskSetGenerator.derivPercentage && taskSet.uFactor <= u1 + TaskSetGenerator.derivPercentage
+    inRange shouldBe true
+
+    val u2 = 0.7d
+    val taskSet2 = TaskSetGenerator.genTaskSet(300, 0.7, dMin = 0.0d, dMax = 1.0d,
+      asynchronous = false, LimitedHPDistinctPeriods, 10,UUnifast )
+
+    val inRange2 = taskSet2.uFactor >= u2 - TaskSetGenerator.derivPercentage && taskSet2.uFactor <= u2 + TaskSetGenerator.derivPercentage
+    inRange2 shouldBe true
+
+    val u3 = 0.5d
+    val taskSet3 = TaskSetGenerator.genTaskSet(50, 0.5, dMin = 0.0d, dMax = 1.0d,
+      asynchronous = false, LimitedHPDistinctPeriods, 10,UUnifast )
+
+    val inRange3 = taskSet3.uFactor >= u3 - TaskSetGenerator.derivPercentage && taskSet3.uFactor <= u3 + TaskSetGenerator.derivPercentage
+    inRange3 shouldBe true
+
   }
 
 

@@ -39,7 +39,7 @@
 package test.scala.clustering
 
 import main.scala.clustering.{ClusterDeadline, ClusteringCompanion}
-import main.scala.taskmodel.{TaskSet, Task}
+import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 
 class ClusteringCompanionSpec extends UnitSpec{

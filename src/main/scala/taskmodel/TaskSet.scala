@@ -38,8 +38,8 @@
 
 package main.scala.taskmodel
 
-import main.scala.utils.Numbers
 import main.scala.utils.AllImplicits._
+import main.scala.utils.Numbers
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer

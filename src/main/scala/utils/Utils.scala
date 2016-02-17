@@ -39,6 +39,7 @@
 package main.scala.utils
 
 import breeze.linalg.DenseVector
+
 import scala.annotation.tailrec
 import scala.language.postfixOps
 import scala.math.BigInt

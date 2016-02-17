@@ -40,7 +40,7 @@ package test.scala.clustering
 
 import main.scala.clustering.{MinDensity, MonoClustering}
 import main.scala.scheduling.DMresponseTimeAnalysis
-import main.scala.taskmodel.{TaskSet, Task}
+import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 
 

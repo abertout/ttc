@@ -41,7 +41,7 @@ package clustering
 import main.scala.clustering.MinDensity
 import main.scala.partitionning.ButtazoHeuristicH1
 import main.scala.scheduling.EDFqPA
-import main.scala.taskmodel.{TaskSet, Task}
+import main.scala.taskmodel.{Task, TaskSet}
 import test.scala.UnitSpec
 
 class MultiClusteringSpec extends UnitSpec{
