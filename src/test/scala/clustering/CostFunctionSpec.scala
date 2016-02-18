@@ -38,6 +38,9 @@
 
 package test.scala.clustering
 
+import main.scala.clustering._
+import main.scala.scheduling.EDFresponseTimeAnalysisGuan
+import main.scala.taskmodel.{TaskSet, Task}
 import test.scala.UnitSpec
 
 
@@ -46,37 +49,71 @@ class CostFunctionSpec extends UnitSpec{
   def fixture =
     new {
 
+      val a = Task("a", 1,19,40)
+      val b = Task("b", 3,34,50)
+      val c = Task("c", 4,33,33)
+      val d = Task("d", 11,90,100)
+      val e = Task("e", 1,9,10)
+
+      val taskSet = TaskSet(Seq(a,b,c,d,e))
+
+      val a2 = Task("a", 1,33,50)
+      val b2 = Task("b", 2,44,44)
+      val c2 = Task("c", 40,100,105)
+      val d2 = Task("d", 2,12,15)
+      val e2 = Task("e", 2,10,40)
+
+      val taskSet2 = TaskSet(Seq(a2,b2,c2,d2,e2))
+
+      val a3 = Task("a", 1,33,55)
+      val b3 = Task("b", 2,35,40)
+      val c3 = Task("c", 5,50,55)
+      val d3 = Task("d", 2,50,75)
+      val e3 = Task("e", 10,60,65)
+
+      val taskSet3 = TaskSet(Seq(a3,b3,c3,d3,e3))
+
+      val a4 = Task("a", 1,39,40)
+      val b4 = Task("b", 3,34,34)
+      val c4 = Task("c", 4,39,33)
+      val d4 = Task("d", 20,90,100)
+      val e4 = Task("e", 1,30,30)
+
+      val taskSet4 = TaskSet(Seq(a4,b4,c4,d4,e4))
+
+      val allTaskSet = Seq(taskSet, taskSet2, taskSet3, taskSet4)
+
     }
 
   "An AvgResponseTime cost function" should "select the taskset with the minimal average response time" in {
-   ???
+    val f = fixture
+    val taskSet = EDFresponseTimeAnalysisGuan(f.taskSet)._2
+    val allTaskSetWithR = f.allTaskSet.map(EDFresponseTimeAnalysisGuan(_)._2)
+    AvgResponseTime(allTaskSetWithR).equalContent(taskSet) shouldEqual true
   }
 
 
   "An MaxDensity cost function" should "select the taskset with the maximal density" in {
-    ???
-
-
+    val f = fixture
+    MaxDensity(f.allTaskSet).equalContent(f.taskSet2) shouldBe true
   }
 
   "An MinDensity cost function" should "select the taskset with the minimal density" in {
-    ???
-
-
+    val f = fixture
+    MinDensity(f.allTaskSet).equalContent(f.taskSet3) shouldBe true
   }
 
   "An random cost function" should "select the taskset randomly" in {
-    ???
-
-
+    val f = fixture
+    val rdmTaskSet = Random(f.allTaskSet)
+    f.allTaskSet.exists(taskSet => taskSet.equalContent(rdmTaskSet)) shouldBe true
   }
 
   "An ResponseTimeDensity cost function" should "select the taskset with the minimal density computed on the response time" in {
-    ???
-
+    val f = fixture
+    val taskSet = EDFresponseTimeAnalysisGuan(f.taskSet3)._2
+    val allTaskSetWithR = f.allTaskSet.map(EDFresponseTimeAnalysisGuan(_)._2)
+    ResponseTimeDensity(allTaskSetWithR).equalContent(taskSet) shouldEqual true
   }
-
-
-
 
 }
