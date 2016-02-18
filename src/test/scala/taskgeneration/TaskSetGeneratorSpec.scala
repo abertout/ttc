@@ -39,7 +39,7 @@
 package test.scala.taskgeneration
 
 import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator, UUnifast}
-import taskgeneration.LimitedHPDistinctPeriods
+import taskgeneration.{UniformDistinctPeriods, LimitedHPDistinctPeriods}
 import test.scala.UnitSpec
 
 
@@ -87,7 +87,6 @@ class TaskSetGeneratorSpec extends UnitSpec{
 
     val inRange3 = taskSet3.uFactor >= u3 - TaskSetGenerator.derivPercentage && taskSet3.uFactor <= u3 + TaskSetGenerator.derivPercentage
     inRange3 shouldBe true
-
   }
 
 

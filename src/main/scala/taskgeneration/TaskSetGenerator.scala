@@ -93,9 +93,9 @@ object TaskSetGenerator {
 
   /**
     *
-    * @param f a function of type A
+    * @param f a function returning a object of type A
     * @param max maximum number of attemps allowed
-    * @tparam A any type
+    * @tparam A a type
     * @return
     */
   def maxAttempts[A](f: A, max: Int): A = recMaxAttempts(f, max, 0)
