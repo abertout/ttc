@@ -39,7 +39,6 @@
 package main.scala.clustering
 
 import main.scala.taskmodel.{Task, TaskSet}
-
 import scala.collection.mutable
 
 

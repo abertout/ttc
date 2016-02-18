@@ -38,7 +38,6 @@
 
 package main.scala.clustering
 
-import main.scala.clustering.{ClusterDeadline, ClusteringCompanion, CostFunction, MonoClustering}
 import main.scala.partitionning.PartitionningAlgorithm
 import main.scala.scheduling.{Encoding, ResponseTimeAnalysis, SchedTest}
 import main.scala.taskmodel.{Task, TaskSet}
