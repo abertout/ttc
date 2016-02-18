@@ -41,7 +41,7 @@ package main.scala.taskgeneration
 
 import main.scala.taskmodel.{Task, TaskSet}
 import main.scala.utils.Numbers
-import taskgeneration.TGeneration
+import main.scala.taskgeneration.TGeneration
 
 import scala.annotation.tailrec
 import scala.util.Random

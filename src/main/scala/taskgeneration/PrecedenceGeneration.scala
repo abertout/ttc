@@ -36,7 +36,7 @@
  *
  */
 
-package taskgeneration
+package main.scala.taskgeneration
 
 import main.scala.taskmodel.{Task, TaskSet}
 import main.scala.utils.Numbers

@@ -43,7 +43,7 @@ import java.io.FileNotFoundException
 import main.scala.export.Export
 import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator}
 import main.scala.taskmodel.{Task, TaskSet}
-import taskgeneration.{ByLevel, LimitedHPDistinctPeriods}
+import main.scala.taskgeneration.{ByLevel, LimitedHPDistinctPeriods}
 import test.scala.UnitSpec
 
 
@@ -68,7 +68,6 @@ class ExportSpec extends UnitSpec{
     )
 
     val taskSet = TaskSet(set = Seq(tauB, tauC, tauIJ, tauA, tauD, tauF, tauE, tauG, tauH), Some(dep))
-
   }
 
   "A export to Cheddar" should "generate a correct xml file" in {
@@ -95,7 +94,6 @@ class ExportSpec extends UnitSpec{
   "The display graph method" should "correctly display a dot description" in {
     val f = fixture
     Export.displayGraph(f.taskSet)
-    ???
   }
 
 

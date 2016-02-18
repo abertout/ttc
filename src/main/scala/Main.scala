@@ -36,15 +36,16 @@
  *
  */
 
+package main.scala
 
-import clustering.MultiClustering
+import main.scala.clustering.MultiClustering
 import main.scala.clustering.{MinDensity, MonoClustering}
 import main.scala.parser.TaskSetParser
 import main.scala.partitionning.GlobalHeuristic
 import main.scala.scheduling.{DMresponseTimeAnalysis, EDFqPA}
 import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator}
 import main.scala.taskmodel.TaskSet
-import taskgeneration.{ByLevel, LimitedHPDistinctPeriods}
+import main.scala.taskgeneration.{ByLevel, LimitedHPDistinctPeriods}
 
 object Main extends App {
 

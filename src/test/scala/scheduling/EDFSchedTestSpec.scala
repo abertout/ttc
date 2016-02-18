@@ -42,7 +42,7 @@ import main.scala.export.Export
 import main.scala.scheduling._
 import main.scala.taskgeneration.{TaskSetGenerator, UUnifast}
 import main.scala.taskmodel.{Task, TaskSet}
-import taskgeneration.LimitedHPDistinctPeriods
+import main.scala.taskgeneration.LimitedHPDistinctPeriods
 import test.scala.UnitSpec
 
 

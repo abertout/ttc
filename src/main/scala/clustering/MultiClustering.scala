@@ -36,7 +36,7 @@
  *
  */
 
-package clustering
+package main.scala.clustering
 
 import main.scala.clustering.{ClusterDeadline, ClusteringCompanion, CostFunction, MonoClustering}
 import main.scala.partitionning.PartitionningAlgorithm

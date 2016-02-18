@@ -39,7 +39,7 @@
 package test.scala.taskgeneration
 
 import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator, UUnifast}
-import taskgeneration.{UniformDistinctPeriods, LimitedHPDistinctPeriods}
+import main.scala.taskgeneration.{UniformDistinctPeriods, LimitedHPDistinctPeriods}
 import test.scala.UnitSpec
 
 

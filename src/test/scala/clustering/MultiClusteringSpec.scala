@@ -36,9 +36,9 @@
  *
  */
 
-package clustering
+package test.scala.clustering
 
-import main.scala.clustering.MinDensity
+import main.scala.clustering.{MultiClustering, MinDensity}
 import main.scala.partitionning.ButtazoHeuristicH1
 import main.scala.scheduling.EDFqPA
 import main.scala.taskmodel.{Task, TaskSet}

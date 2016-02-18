@@ -36,9 +36,10 @@
  *
  */
 
-package taskgeneration
+package test.scala.taskgeneration
 
 
+import main.scala.taskgeneration.{UniformDistinctPeriods, LimitedHPDistinctPeriods}
 import test.scala.UnitSpec
 
 
