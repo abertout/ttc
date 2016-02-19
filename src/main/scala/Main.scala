@@ -49,9 +49,8 @@ import main.scala.taskgeneration.{ByLevel, LimitedHPDistinctPeriods}
 
 object Main extends App {
 
-
-  val path = getClass.getResource("/taskSet").getFile
-  val taskSet: TaskSet = TaskSetParser.taskSetFromFile(path)
+  val resourceName = "/taskSet" /* Read file respecting taskSet.ebnf grammar from resource directory */
+  val taskSet: TaskSet = TaskSetParser.taskSetFromResource(resourceName)
   val minTaskSet = MonoClustering.cluster(taskSet, DMresponseTimeAnalysis, MinDensity, Some(DMresponseTimeAnalysis))
 
   val taskSetMulti = TaskSetGenerator.genTaskSet(200,2.4d,0.0,1.0,asynchronous = false,LimitedHPDistinctPeriods,10,RandFixedSum)

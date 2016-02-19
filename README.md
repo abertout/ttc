@@ -27,8 +27,8 @@ This project can be built with sbt 0.13. Code is documented.
 ```scala
 object Main extends App {
 
-  val path = getClass.getResource("/taskSet").getFile /* task set description according to taskSet.ebnf grammar */
-  val taskSet: TaskSet = TaskSetParser.taskSetFromFile(path)
+  val resourceName = "/taskSet"   /* Read file respecting taskSet.ebnf grammar from resource directory */
+  val taskSet: TaskSet = TaskSetParser.taskSetFromResource(resourceName)
   
   /* Uniprocessor */
   val minTaskSet = MonoClustering.cluster(taskSet, DMresponseTimeAnalysis, MinDensity, Some(DMresponseTimeAnalysis))

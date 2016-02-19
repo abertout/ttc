@@ -112,15 +112,17 @@ object TaskSetParser extends JavaTokenParsers{
   }
 
   /**
-    * Generates taskSet from file
-    * @param path file path
+    * Generates taskSet from resource
+    *
+    * @param resourceName name of taskSet in resources directory
     * @return
     */
-  def taskSetFromFile(path: String): TaskSet = {
-    val pathExist = new java.io.File(path).exists
-    if(!pathExist) throw new FileNotFoundException(s"File $path not found")
-    val reader = new FileReader(path)
-    val parsed: List[Stmt] = parse(taskSetDecl, reader).getOrElse(List.empty[Stmt])
+  def taskSetFromResource(resourceName: String): TaskSet = {
+    val resource = Option(getClass.getResource(resourceName).getFile)
+    if(resource.nonEmpty) throw new FileNotFoundException(s"Resource $resourceName not found")
+    val stream = getClass.getResourceAsStream(resourceName)
+    val s = scala.io.Source.fromInputStream(stream).mkString
+    val parsed: List[Stmt] = parse(taskSetDecl, s).getOrElse(List.empty[Stmt])
     taskSetFromParsed(parsed)
   }
   /**

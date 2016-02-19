@@ -121,10 +121,10 @@ class TaskSetParserSpec extends UnitSpec{
 
     val expTaskSet = fixture.taskSet
     val validPath = getClass.getResource("/taskSet").getFile
-    val taskSet = TaskSetParser.taskSetFromFile(validPath)
+    val taskSet = TaskSetParser.taskSetFromResource(validPath)
     taskSet shouldEqual expTaskSet
     val wrongPath = "../ressource/tasskSet"
-    an [FileNotFoundException] should be thrownBy TaskSetParser.taskSetFromFile(wrongPath)
+    an [FileNotFoundException] should be thrownBy TaskSetParser.taskSetFromResource(wrongPath)
   }
 
   "Method taskByName" should "return the task if it exists" in {
