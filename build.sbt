@@ -2,7 +2,19 @@ name := "ttc"
 
 version := "1.0"
 
-scalaVersion := "2.11.7" 
+scalaVersion := "2.11.7"
+
+mainClass in (Compile, packageBin) := Some("main.scala.Main")
+
+mainClass in (Compile, run) := Some("main.scala.Main")
+
+mainClass in assembly := Some("main.scala.Main")
+
+assemblyJarName in assembly := "ttc.jar"
+
+test in assembly := {}
+
+/* unmanagedResourceDirectories in Compile += { baseDirectory.value / "src/main/resources" } */
 
 libraryDependencies  ++= Seq(
 "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.4",
