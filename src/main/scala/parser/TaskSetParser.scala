@@ -119,7 +119,7 @@ object TaskSetParser extends JavaTokenParsers{
     */
   def taskSetFromResource(resourceName: String): TaskSet = {
     val resource = Option(getClass.getResource(resourceName).getFile)
-    if(resource.nonEmpty) throw new FileNotFoundException(s"Resource $resourceName not found")
+    if(resource.isEmpty) throw new FileNotFoundException(s"Resource $resourceName not found")
     val stream = getClass.getResourceAsStream(resourceName)
     val s = scala.io.Source.fromInputStream(stream).mkString
     val parsed: List[Stmt] = parse(taskSetDecl, s).getOrElse(List.empty[Stmt])
