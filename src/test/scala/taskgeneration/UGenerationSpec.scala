@@ -36,11 +36,11 @@
  *
  */
 
-package test.scala.taskgeneration
+package ttc.taskgeneration
 
-import main.scala.taskgeneration.{RandFixedSum, UUnifast, UUnifastDiscard}
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.taskgeneration.{RandFixedSum, UUnifast, UUnifastDiscard}
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
 
 class UGenerationSpec extends UnitSpec{
 

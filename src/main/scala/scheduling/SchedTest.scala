@@ -36,10 +36,9 @@
  *
  */
 
-package main.scala.scheduling
+package ttc.scheduling
 
-import main.scala.taskmodel.TaskSet
-
+import ttc.taskmodel.TaskSet
 
 trait SchedTest extends (TaskSet => (Boolean, TaskSet))
 trait ResponseTimeAnalysis

@@ -36,13 +36,13 @@
  *
  */
 
-package test.scala.clustering
+package ttc.clustering
 
-import main.scala.clustering.{MultiClustering, MinDensity}
-import main.scala.partitionning.ButtazoHeuristicH1
-import main.scala.scheduling.EDFqPA
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.clustering.{MultiClustering, MinDensity}
+import ttc.partitionning.ButtazoHeuristicH1
+import ttc.scheduling.EDFqPA
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
 
 class MultiClusteringSpec extends UnitSpec{
 

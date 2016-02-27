@@ -36,9 +36,9 @@
  *
  */
 
-package main.scala.clustering
+package ttc.clustering
 
-import main.scala.taskmodel.TaskSet
+import ttc.taskmodel.TaskSet
 
 trait CostFunction extends (Seq[TaskSet] => TaskSet)
 

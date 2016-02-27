@@ -36,10 +36,10 @@
  *
  */
 
-package main.scala.taskmodel
+package ttc.taskmodel
 
-import main.scala.utils.AllImplicits._
-import main.scala.utils.Numbers
+import ttc.utils.AllImplicits._
+import ttc.utils.Numbers
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.language.postfixOps

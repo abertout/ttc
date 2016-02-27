@@ -36,14 +36,14 @@
  *
  */
 
-package test.scala.scheduling
+package ttc.scheduling
 
-import main.scala.export.Export
-import main.scala.scheduling._
-import main.scala.taskgeneration.{TaskSetGenerator, UUnifast}
-import main.scala.taskmodel.{Task, TaskSet}
-import main.scala.taskgeneration.LimitedHPDistinctPeriods
-import test.scala.UnitSpec
+import ttc.export.Export
+import ttc.scheduling._
+import ttc.taskgeneration.{TaskSetGenerator, UUnifast}
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.taskgeneration.LimitedHPDistinctPeriods
+import ttc.UnitSpec
 
 
 class EDFSchedTestSpec extends UnitSpec{

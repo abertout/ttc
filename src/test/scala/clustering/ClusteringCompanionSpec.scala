@@ -36,11 +36,11 @@
  *
  */
 
-package test.scala.clustering
+package ttc.clustering
 
-import main.scala.clustering.{ClusterDeadline, ClusteringCompanion}
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.clustering.{ClusterDeadline, ClusteringCompanion}
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
 
 class ClusteringCompanionSpec extends UnitSpec{
 

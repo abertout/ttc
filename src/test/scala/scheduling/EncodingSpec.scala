@@ -36,11 +36,12 @@
  *
  */
 
-package test.scala.scheduling
+package ttc.scheduling
 
-import main.scala.scheduling.Encoding
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.scheduling.Encoding
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
+
 class EncodingSpec extends UnitSpec{
 
   def fixture =

@@ -36,11 +36,10 @@
  *
  */
 
-package main.scala.taskgeneration
+package ttc.taskgeneration
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import main.scala.utils.Matrix
-
+import ttc.utils.Matrix
 import scala.annotation.tailrec
 import scala.util.Random
 

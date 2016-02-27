@@ -36,12 +36,12 @@
  *
  */
 
-package test.scala.partitionning
+package ttc.partitionning
 
-import main.scala.partitionning.{ButtazoHeuristicH1, ButtazoHeuristicH2, GlobalHeuristic, PartitionningAlgorithm}
-import main.scala.scheduling.EDFqPA
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.partitionning.{ButtazoHeuristicH1, ButtazoHeuristicH2, GlobalHeuristic, PartitionningAlgorithm}
+import ttc.scheduling.EDFqPA
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
 
 class PartitionningAlgorithmSpec extends UnitSpec{
 

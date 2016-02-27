@@ -1,4 +1,4 @@
-package test.scala
+package ttc
 
 import org.scalatest._
 

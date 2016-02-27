@@ -36,11 +36,11 @@
  *
  */
 
-package main.scala.taskgeneration
+package ttc.taskgeneration
 
 
-import main.scala.taskmodel.{Task, TaskSet}
-import main.scala.utils.Numbers
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.utils.Numbers
 import scala.annotation.tailrec
 import scala.util.Random
 

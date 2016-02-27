@@ -36,12 +36,12 @@
  *
  */
 
-package test.scala.clustering
+package ttc.clustering
 
-import main.scala.clustering.{MinDensity, MonoClustering}
-import main.scala.scheduling.DMresponseTimeAnalysis
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.clustering.{MinDensity, MonoClustering}
+import ttc.scheduling.DMresponseTimeAnalysis
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
 
 
 class MonoClusteringSpec extends UnitSpec{

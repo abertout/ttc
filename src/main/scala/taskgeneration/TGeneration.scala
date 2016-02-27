@@ -36,10 +36,9 @@
  *
  */
 
-package main.scala.taskgeneration
+package ttc.taskgeneration
 
-import main.scala.utils.Numbers
-
+import ttc.utils.Numbers
 import scala.util.Random
 
 

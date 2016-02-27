@@ -39,9 +39,9 @@
 package test.scala.utils
 
 import breeze.linalg.DenseVector
-import main.scala.utils.AllImplicits.SeqImprovements
-import main.scala.utils.{MapUtils, Matrix, Numbers}
-import test.scala.UnitSpec
+import ttc.utils.AllImplicits.SeqImprovements
+import ttc.utils.{MapUtils, Matrix, Numbers}
+import ttc.UnitSpec
 
 
 class UtilsSpec extends UnitSpec{

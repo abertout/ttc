@@ -36,7 +36,7 @@
  *
  */
 
-package main.scala.taskmodel
+package ttc.taskmodel
 
 /**
  * A task with real-time constraints

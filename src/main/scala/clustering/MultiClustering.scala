@@ -36,11 +36,11 @@
  *
  */
 
-package main.scala.clustering
+package ttc.clustering
 
-import main.scala.partitionning.PartitionningAlgorithm
-import main.scala.scheduling.{Encoding, ResponseTimeAnalysis, SchedTest}
-import main.scala.taskmodel.{Task, TaskSet}
+import ttc.partitionning.PartitionningAlgorithm
+import ttc.scheduling.{Encoding, ResponseTimeAnalysis, SchedTest}
+import ttc.taskmodel.{Task, TaskSet}
 
 import scala.collection.mutable.ArrayBuffer
 

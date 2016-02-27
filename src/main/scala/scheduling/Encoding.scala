@@ -36,11 +36,10 @@
  *
  */
 
-package main.scala.scheduling
+package ttc.scheduling
 
-import main.scala.taskmodel.{Task, TaskSet}
-import main.scala.utils.MapUtils
-
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.utils.MapUtils
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
 

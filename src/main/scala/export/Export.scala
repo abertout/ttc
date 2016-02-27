@@ -36,12 +36,10 @@
  *
  */
 
-package main.scala.export
+package ttc.export
 
 import java.io.{File, PrintWriter}
-
-import main.scala.taskmodel.{Task, TaskSet}
-
+import ttc.taskmodel.{Task, TaskSet}
 import scala.sys.process._
 import scala.xml.{Unparsed, XML}
 

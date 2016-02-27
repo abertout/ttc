@@ -36,10 +36,10 @@
  *
  */
 
-package test.scala.taskmodel
+package ttc.taskmodel
 
-import main.scala.taskmodel.Task
-import test.scala.UnitSpec
+import ttc.taskmodel.Task
+import ttc.UnitSpec
 
 
 class TaskSpec extends UnitSpec{

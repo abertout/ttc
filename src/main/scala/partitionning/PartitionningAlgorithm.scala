@@ -36,11 +36,10 @@
  *
  */
 
-package main.scala.partitionning
+package ttc.partitionning
 
-import main.scala.scheduling.{Encoding, SchedTest}
-import main.scala.taskmodel.{Task, TaskSet}
-
+import ttc.scheduling.{Encoding, SchedTest}
+import ttc.taskmodel.{Task, TaskSet}
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 

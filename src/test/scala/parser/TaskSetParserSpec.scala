@@ -36,13 +36,13 @@
  *
  */
 
-package test.scala.parser
+package ttc.parser
 
 import java.io.FileNotFoundException
 
-import main.scala.parser.{PredDecl, TaskSetParser}
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.parser.{PredDecl, TaskSetParser}
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
 
 
 class TaskSetParserSpec extends UnitSpec{

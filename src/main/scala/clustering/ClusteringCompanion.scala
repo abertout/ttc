@@ -36,9 +36,9 @@
  *
  */
 
-package main.scala.clustering
+package ttc.clustering
 
-import main.scala.taskmodel.{Task, TaskSet}
+import ttc.taskmodel.{Task, TaskSet}
 import scala.collection.mutable
 
 

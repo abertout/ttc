@@ -36,11 +36,11 @@
  *
  */
 
-package test.scala.taskgeneration
+package ttc.taskgeneration
 
-import main.scala.taskgeneration.{ByLevel, SimpleErdösRényi}
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.taskgeneration.{ByLevel, SimpleErdösRényi}
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
 
 
 class PrecedenceGenerationSpec extends UnitSpec{

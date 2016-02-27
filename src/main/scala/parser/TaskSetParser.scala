@@ -36,12 +36,10 @@
  *
  */
 
-package main.scala.parser
+package ttc.parser
 
 import java.io.{FileNotFoundException, FileReader}
-
-import main.scala.taskmodel.{Task, TaskSet}
-
+import ttc.taskmodel.{Task, TaskSet}
 import scala.util.parsing.combinator.JavaTokenParsers
 
 abstract class Stmt

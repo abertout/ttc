@@ -36,15 +36,15 @@
  *
  */
 
-package test.scala.export
+package ttc.export
 
 import java.io.FileNotFoundException
 
-import main.scala.export.Export
-import main.scala.taskgeneration.{RandFixedSum, TaskSetGenerator}
-import main.scala.taskmodel.{Task, TaskSet}
-import main.scala.taskgeneration.{ByLevel, LimitedHPDistinctPeriods}
-import test.scala.UnitSpec
+import ttc.export.Export
+import ttc.taskgeneration.{RandFixedSum, TaskSetGenerator}
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.taskgeneration.{ByLevel, LimitedHPDistinctPeriods}
+import ttc.UnitSpec
 
 
 class ExportSpec extends UnitSpec{

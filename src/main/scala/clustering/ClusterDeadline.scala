@@ -36,7 +36,7 @@
  *
  */
 
-package main.scala.clustering
+package ttc.clustering
 
 object ClusterDeadline extends Enumeration {
 

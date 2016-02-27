@@ -36,12 +36,12 @@
  *
  */
 
-package test.scala.scheduling
+package ttc.scheduling
 
 
-import main.scala.scheduling.{DMresponseTimeAnalysis, DMsufficientSchedulabilityTest}
-import main.scala.taskmodel.{Task, TaskSet}
-import test.scala.UnitSpec
+import ttc.scheduling.{DMresponseTimeAnalysis, DMsufficientSchedulabilityTest}
+import ttc.taskmodel.{Task, TaskSet}
+import ttc.UnitSpec
 
 
 class DMSchedTestSpec extends UnitSpec{

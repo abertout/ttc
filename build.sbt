@@ -4,11 +4,11 @@ version := "1.0"
 
 scalaVersion := "2.11.7"
 
-mainClass in (Compile, packageBin) := Some("main.scala.Main")
+mainClass in (Compile, packageBin) := Some("ttc.Main")
 
-mainClass in (Compile, run) := Some("main.scala.Main")
+mainClass in (Compile, run) := Some("ttc.Main")
 
-mainClass in assembly := Some("main.scala.Main")
+mainClass in assembly := Some("ttc.Main")
 
 assemblyJarName in assembly := "ttc.jar"
 

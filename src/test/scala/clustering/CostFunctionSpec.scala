@@ -36,12 +36,12 @@
  *
  */
 
-package test.scala.clustering
+package ttc.clustering
 
-import main.scala.clustering._
-import main.scala.scheduling.EDFresponseTimeAnalysisGuan
-import main.scala.taskmodel.{TaskSet, Task}
-import test.scala.UnitSpec
+import ttc.clustering._
+import ttc.scheduling.EDFresponseTimeAnalysisGuan
+import ttc.taskmodel.{TaskSet, Task}
+import ttc.UnitSpec
 
 
 class CostFunctionSpec extends UnitSpec{
