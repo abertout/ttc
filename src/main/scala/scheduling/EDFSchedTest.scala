@@ -236,7 +236,7 @@ object EDFresponseTimeAnalysisGuan extends EDFSchedTest with ResponseTimeAnalysi
           }
           slackTimes(j) = math.min(slackTimes(j), delta - gNew)
         }
-    }
+      }
 
       //Find the next absolute deadlines
       var minAbsDlIdx = 0
@@ -479,7 +479,7 @@ object EDFsufficientTestDevi extends EDFSchedTest {
 }
 
 
-object EDFqPA extends EDFSchedTest{
+object EDFqPA extends EDFSchedTest {
 
   /** Implement QPA algorithm from Zhang et Burns that provide an exact boolean test
     * Zhang, F., & Burns, A. (2009). Schedulability analysis for real-time systems with EDF scheduling. Computers, IEEE Transactions on, 58(9), 1250-1258.
@@ -487,22 +487,22 @@ object EDFqPA extends EDFSchedTest{
     * @param taskSet task set
     * @return
     */
-  def apply(taskSet: TaskSet): (Boolean,TaskSet) = {
+  def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
 
     //Step 1,compute utilization factor (note that it won't change in our case cause we do not modify periods)
-    if(taskSet.uFactor > 1) return (false, taskSet)
+    if (taskSet.uFactor > 1) return (false, taskSet)
 
     //Step 2, compute L_a upper bound, we must check later that that L_b is not always better with relative deadlines
     var la: Int = 0
     var maxD = 0
     var maxRightSide: Float = 0
 
-    for(task <- taskSet.set){
-      if(task.d > maxD)
+    for (task <- taskSet.set) {
+      if (task.d > maxD)
         maxD = task.d
       maxRightSide += (task.t - task.d) * (task.c / task.t.toFloat)
     }
-    la = math.max(maxD, (maxRightSide /(1 - taskSet.uFactor).toFloat).toInt)
+    la = math.max(maxD, (maxRightSide / (1 - taskSet.uFactor).toFloat).toInt)
 
     //Step 3, compute L_b upper bound,
     var lb: Int = 0
@@ -513,16 +513,16 @@ object EDFqPA extends EDFSchedTest{
 
     lastWiValue = w0
 
-    while(!fixedPointReached){
+    while (!fixedPointReached) {
 
       for (task <- taskSet.set) {
-        newWiValue +=  math.ceil(lastWiValue / task.t.toFloat).toInt * task.c
+        newWiValue += math.ceil(lastWiValue / task.t.toFloat).toInt * task.c
       }
-      if(lastWiValue == newWiValue){
+      if (lastWiValue == newWiValue) {
         fixedPointReached = true
         lb = newWiValue
       }
-      else{
+      else {
         lastWiValue = newWiValue
         newWiValue = 0
       }
@@ -537,8 +537,8 @@ object EDFqPA extends EDFSchedTest{
     t = maxDinf(taskSet, l)
     var ht = demandBoundFunction(taskSet, t)
 
-    while(ht <= t && ht > Dmin){
-      if (ht < t ) t = ht
+    while (ht <= t && ht > Dmin) {
+      if (ht < t) t = ht
       else t = maxDinf(taskSet, t)
       ht = demandBoundFunction(taskSet, t)
     }
@@ -548,76 +548,76 @@ object EDFqPA extends EDFSchedTest{
     (false, taskSet)
   }
 
-
-  object EDFasynchronousSufficientTest extends EDFSchedTest {
-    /**
-      * Implements feasability analysis for asynchronous tasks (sufficient schedulability test for EDF) with one fixed task
-      * Pellizzoni, R., & Lipari, G. (2005). Feasibility analysis of real-time periodic tasks with offsets. Real-Time Systems, 30(1-2), 105-128.
-      *
-      * @param taskSet task set
-      * @return
-      */
-    def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
-      if (taskSet.uFactor > 1) return (false, taskSet)
-      for (i <- taskSet.set.indices) {
-        val copiedTaskSet = TaskSet(set = taskSet.set.map(_.copy()))
-        val syncFixedTask = copiedTaskSet.set(i)
-        val asynchFixedTask = Task(syncFixedTask.name, syncFixedTask.c, syncFixedTask.d, syncFixedTask.t, 0)
-        val tmpNewTaskSet = for (task <- copiedTaskSet.set if task != asynchFixedTask)
-          yield Task(task.name, task.c, task.d, task.t, minimalDistance(asynchFixedTask, task), task.r)
-        val newTaskSet = TaskSet(set = tmpNewTaskSet :+ asynchFixedTask)
-        var lastLStarValue = 0
-        var lStar = asynchFixedTask.c
-
-        do {
-          lastLStarValue = lStar
-          lStar = newTaskSet.set.view.map(task => math.max(math.ceil((lastLStarValue - task.o) / task.t.toDouble), 0) * task.c toInt).sum
-        } while (lastLStarValue != lStar)
-        var l = 0
-
-        val allCurrentAbsDl: Array[Int] = Array.ofDim(newTaskSet.set.size)
-        var firstMin = newTaskSet.set.head.o + newTaskSet.set.head.d
-        var firstMinIdx = 0
+}
 
 
-        //init array of abs deadlines
-        for (i <- newTaskSet.set.indices) {
-          allCurrentAbsDl(i) = newTaskSet.set(i).o + newTaskSet.set(i).d
-          if (allCurrentAbsDl(i) < firstMin) {
-            firstMin = allCurrentAbsDl(i)
-            firstMinIdx = i
-          }
-        }
+object EDFasynchronousSufficientTest extends EDFSchedTest {
+  /**
+    * Implements feasability analysis for asynchronous tasks (sufficient schedulability test for EDF) with one fixed task
+    * Pellizzoni, R., & Lipari, G. (2005). Feasibility analysis of real-time periodic tasks with offsets. Real-Time Systems, 30(1-2), 105-128.
+    *
+    * @param taskSet task set
+    * @return
+    */
+  def apply(taskSet: TaskSet): (Boolean, TaskSet) = {
+    if (taskSet.uFactor > 1) return (false, taskSet)
+    for (i <- taskSet.set.indices) {
+      val copiedTaskSet = TaskSet(set = taskSet.set.map(_.copy()))
+      val syncFixedTask = copiedTaskSet.set(i)
+      val asynchFixedTask = Task(syncFixedTask.name, syncFixedTask.c, syncFixedTask.d, syncFixedTask.t, 0)
+      val tmpNewTaskSet = for (task <- copiedTaskSet.set if task != asynchFixedTask)
+        yield Task(task.name, task.c, task.d, task.t, minimalDistance(asynchFixedTask, task), task.r)
+      val newTaskSet = TaskSet(set = tmpNewTaskSet :+ asynchFixedTask)
+      var lastLStarValue = 0
+      var lStar = asynchFixedTask.c
 
-        l = firstMin
-        allCurrentAbsDl(firstMinIdx) += newTaskSet.set(firstMinIdx).t
+      do {
+        lastLStarValue = lStar
+        lStar = newTaskSet.set.view.map(task => math.max(math.ceil((lastLStarValue - task.o) / task.t.toDouble), 0) * task.c toInt).sum
+      } while (lastLStarValue != lStar)
+      var l = 0
 
-        while (l <= lStar) {
-          //println(l+","+demandFunction(newTaskSet, 0, lStar))
-          if (demandFunction(newTaskSet, 0, l) > l)
-            return (false, taskSet)
+      val allCurrentAbsDl: Array[Int] = Array.ofDim(newTaskSet.set.size)
+      var firstMin = newTaskSet.set.head.o + newTaskSet.set.head.d
+      var firstMinIdx = 0
 
-          //Find the next absolute deadlines
-          var minAbsDlIdx = 0
-          var minAbsDl = l
 
-          while (minAbsDl == l) {
-            minAbsDl = Int.MaxValue
-            for (i <- newTaskSet.set.indices) {
-              if (allCurrentAbsDl(i) < minAbsDl) {
-                minAbsDlIdx = i
-                minAbsDl = allCurrentAbsDl(i)
-              }
-            }
-            allCurrentAbsDl(minAbsDlIdx) += newTaskSet.set(minAbsDlIdx).t
-          }
-          l = minAbsDl
+      //init array of abs deadlines
+      for (i <- newTaskSet.set.indices) {
+        allCurrentAbsDl(i) = newTaskSet.set(i).o + newTaskSet.set(i).d
+        if (allCurrentAbsDl(i) < firstMin) {
+          firstMin = allCurrentAbsDl(i)
+          firstMinIdx = i
         }
       }
-      (true, taskSet)
+
+      l = firstMin
+      allCurrentAbsDl(firstMinIdx) += newTaskSet.set(firstMinIdx).t
+
+      while (l <= lStar) {
+        //println(l+","+demandFunction(newTaskSet, 0, lStar))
+        if (demandFunction(newTaskSet, 0, l) > l)
+          return (false, taskSet)
+
+        //Find the next absolute deadlines
+        var minAbsDlIdx = 0
+        var minAbsDl = l
+
+        while (minAbsDl == l) {
+          minAbsDl = Int.MaxValue
+          for (i <- newTaskSet.set.indices) {
+            if (allCurrentAbsDl(i) < minAbsDl) {
+              minAbsDlIdx = i
+              minAbsDl = allCurrentAbsDl(i)
+            }
+          }
+          allCurrentAbsDl(minAbsDlIdx) += newTaskSet.set(minAbsDlIdx).t
+        }
+        l = minAbsDl
+      }
     }
-
+    (true, taskSet)
   }
-
+  
 }
 
