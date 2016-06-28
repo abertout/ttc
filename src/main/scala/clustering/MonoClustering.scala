@@ -84,19 +84,21 @@ object MonoClustering {
               val succ = if (iSuccOfJ) tauI else tauJ
 
               //Check the conditions
-              if (pred.d > succ.d) {
+              if (pred.d > succ.d && pred.c + succ.c <= pred.d) {
                 children += ((sortedTaskSet, i, j, ClusterDeadline.DlMin))
               } else {
-                if ((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || succ.d - succ.c <= pred.d)
+                if (pred.c + succ.c <= succ.d && ((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d)))
                   children += ((sortedTaskSet, i, j, ClusterDeadline.DlSucc))
-                else children += ((sortedTaskSet, i, j, ClusterDeadline.DlPred))
+                else if(pred.c + succ.c <= pred.d && (!((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d))))
+                  children += ((sortedTaskSet, i, j, ClusterDeadline.DlPred))
               }
 
             } else {
               /*not isolated but no direct precedence relation */
-              if ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || tauI.d - tauI.c <= tauJ.d)
+              if (tauI.c + tauJ.c <= tauJ.d && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
                 children += ((taskSet, i, j, ClusterDeadline.DlMax))
-              else children += ((taskSet, i, j, ClusterDeadline.DlMin))
+              else if(tauI.c + tauJ.c <= tauI.d && (!(tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
+                children += ((taskSet, i, j, ClusterDeadline.DlMin))
             }
           }
         }
