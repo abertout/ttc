@@ -69,7 +69,7 @@ object MonoClustering {
         val comp = new ClusteringCompanion(sortedTaskSet)
         if (comp.regroupable(tauI, tauJ)) {
           if (taskSet.isolatedTask(tauI, tauJ)) {
-            if ((tauI.c + tauJ.c <= tauI.d) && (tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)) {
+            if ((tauI.c + tauJ.c <= tauI.d) && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d))) {
               val newTaskSet = comp.fusion(tauI, tauJ, ClusterDeadline.DlMax)
               val newSortedTs = TaskSet(newTaskSet.set.sortBy(_.d), newTaskSet.tasksAndSuccs)
               return greedyBFSClustering(newSortedTs, schedTest, costFunction, rta)
