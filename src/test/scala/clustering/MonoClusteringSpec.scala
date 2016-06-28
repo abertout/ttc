@@ -77,12 +77,21 @@ class MonoClusteringSpec extends UnitSpec{
     }
 
   "A uniprocessor clustering " should "minimize the number of tasks" in {
-
     val f = fixture
     val minTaskSet = MonoClustering.greedyBFSClustering(f.taskSet, DMresponseTimeAnalysis, MinDensity, None)
-    //println(minTaskSet)
-    ???
+    minTaskSet.size <= f.taskSet.size shouldEqual true
 
+  }
+  it should "not creates cluster with execution times superior than deadlines" in {
+    val f = fixture
+    val minTaskSet = MonoClustering.greedyBFSClustering(f.taskSet, DMresponseTimeAnalysis, MinDensity, None)
+    minTaskSet.set.filter(task => task.c > task.d) shouldEqual Seq.empty
+  }
+
+  it should "creates schedulable cluster" in {
+    val f = fixture
+    val minTaskSet = MonoClustering.greedyBFSClustering(f.taskSet, DMresponseTimeAnalysis, MinDensity, None)
+    DMresponseTimeAnalysis(minTaskSet)._1 shouldEqual true
   }
 
 }
