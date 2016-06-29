@@ -73,7 +73,7 @@ object MonoClustering {
               val newTaskSet = comp.fusion(tauI, tauJ, ClusterDeadline.DlMax)
               val newSortedTs = TaskSet(newTaskSet.set.sortBy(_.d), newTaskSet.tasksAndSuccs)
               return greedyBFSClustering(newSortedTs, schedTest, costFunction, rta)
-            } else {
+            } else if(tauI.c + tauJ.c <= tauJ.d){
               children += ((sortedTaskSet, i, j, ClusterDeadline.DlMin))
             }
           } else {
