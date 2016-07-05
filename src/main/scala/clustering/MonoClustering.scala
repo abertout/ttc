@@ -56,7 +56,13 @@ object MonoClustering {
     * @return
     */
   def greedyBFSClustering(taskSet: TaskSet, schedTest: SchedTest, costFunction: CostFunction, rta: Option[ResponseTimeAnalysis]): TaskSet = {
-    val sortedTaskSet: TaskSet = TaskSet(taskSet.set.sortBy(_.d), taskSet.tasksAndSuccs)
+    val taskSetRTA: TaskSet = rta match {
+      case None => taskSet
+      case Some(rt) =>
+        val encoded = Encoding.predsEncoding(taskSet)
+        rt(encoded)._2
+    }
+    val sortedTaskSet: TaskSet = TaskSet(taskSetRTA.set.sortBy(_.d), taskSetRTA.tasksAndSuccs)
     var i = sortedTaskSet.size - 1
     var setMinCost: Option[TaskSet] = None
     var children = new ArrayBuffer[(TaskSet, Int, Int, ClusterDeadline.Value)]()
@@ -71,8 +77,7 @@ object MonoClustering {
           if (taskSet.isolatedTask(tauI, tauJ)) {
             if ((tauI.c + tauJ.c <= tauI.d) && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d))) {
               val newTaskSet = comp.fusion(tauI, tauJ, ClusterDeadline.DlMax)
-              val newSortedTs = TaskSet(newTaskSet.set.sortBy(_.d), newTaskSet.tasksAndSuccs)
-              return greedyBFSClustering(newSortedTs, schedTest, costFunction, rta)
+              return greedyBFSClustering(newTaskSet, schedTest, costFunction, rta)
             } else if(tauI.c + tauJ.c <= tauJ.d){
               children += ((sortedTaskSet, i, j, ClusterDeadline.DlMin))
             }
@@ -120,22 +125,9 @@ object MonoClustering {
       }
     }
 
-    if (schedulableChildren.nonEmpty) {
+    if (schedulableChildren.nonEmpty)
       setMinCost = Some(costFunction(schedulableChildren))
-      if (setMinCost.isDefined) {
-        rta match {
-          case Some(rtaTest) =>
-            val encoded = Encoding.predsEncoding(setMinCost.get)
-            val encRTA = rtaTest(encoded)._2
-            for (task <- setMinCost.get.set; encTask <- encRTA.set) {
-              if (task.equals(encTask)) {
-                task.r = encTask.r
-              }
-            }
-          case _ =>
-        }
-      }
-    }
+
 
     if (setMinCost.isDefined) greedyBFSClustering(setMinCost.get, schedTest, costFunction, rta) //If we found at least one schedulable child, let's make a recursive call on the most promising child
     else taskSet //Otherwise we return the father
