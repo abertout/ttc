@@ -126,7 +126,8 @@ object MonoClustering {
         rta match {
           case Some(rtaTest) =>
             val encoded = Encoding.predsEncoding(setMinCost.get)
-            for (task <- setMinCost.get.set; encTask <- encoded.set) {
+            val encRTA = rtaTest(encoded)._2
+            for (task <- setMinCost.get.set; encTask <- encRTA.set) {
               if (task.equals(encTask)) {
                 task.r = encTask.r
               }

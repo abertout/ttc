@@ -41,7 +41,7 @@ package ttc.scheduling
 import ttc.taskmodel.TaskSet
 
 trait SchedTest extends (TaskSet => (Boolean, TaskSet))
-trait ResponseTimeAnalysis
+trait ResponseTimeAnalysis extends (TaskSet => (Boolean, TaskSet))
 
 trait SchedTestMethod {
   def toString: String
