@@ -66,7 +66,7 @@ object MonoClustering {
       while (j >= 0) {
         val tauI = sortedTaskSet.set(i)
         val tauJ = sortedTaskSet.set(j)
-        val comp = new ClusteringCompanion(sortedTaskSet)
+        val comp = ClusteringCompanion(sortedTaskSet)
         if (comp.regroupable(tauI, tauJ)) {
           if (taskSet.isolatedTask(tauI, tauJ)) {
             if ((tauI.c + tauJ.c <= tauI.d) && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d))) {

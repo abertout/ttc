@@ -105,8 +105,8 @@ object TaskSetParser extends JavaTokenParsers{
           case (k2, v2) => v2
         }.map(taskByName(tasks, _).getOrElse(throw new NoSuchElementException)).toSet)
     }
-
-    TaskSet(tasks, Some(predsRel))
+    val taskSuccsOpt = if(predsRel.isEmpty) None else Some(predsRel)
+    TaskSet(tasks, taskSuccsOpt)
   }
 
   /**
