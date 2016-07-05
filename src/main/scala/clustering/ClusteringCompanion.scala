@@ -42,7 +42,7 @@ import ttc.taskmodel.{Task, TaskSet}
 import scala.collection.mutable
 
 
-class ClusteringCompanion(taskSet: TaskSet) {
+case class ClusteringCompanion(taskSet: TaskSet) {
 
   private val closedAdjMatrix: Vector[Vector[Int]] = initAdjMatrix
 
@@ -155,6 +155,7 @@ class ClusteringCompanion(taskSet: TaskSet) {
   }
 
   private def initAdjMatrix: Vector[Vector[Int]] = {
+    if(taskSet.tasksAndSuccs.isEmpty) return taskSet.adjMatrix
     val mtx = transitiveReduction(taskSet.adjMatrix)
     transitiveClosure(mtx)
   }
