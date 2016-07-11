@@ -138,6 +138,6 @@ object TaskSetGenerator {
     val baseConverted = Numbers.baseConv(index, 26)
     baseConverted.map(nb => ('a' + nb).toChar).mkString
   }
-  
+
 
 }
