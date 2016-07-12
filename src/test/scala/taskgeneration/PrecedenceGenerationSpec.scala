@@ -94,12 +94,12 @@ class PrecedenceGenerationSpec extends UnitSpec{
     a [IllegalArgumentException] should be thrownBy SimpleErdösRényi(f.taskSet, 1.1)
   }
 
-  "A by-level generation method" should "" in {
+  "A by-level generation method" should "not generate an empty set of dependences" in {
 
     val f = fixture
     val taskSet = f.taskSet2
     val withPredTaskSet = ByLevel(taskSet, 0.65, 0.50)
-     ???
+    withPredTaskSet.tasksAndSuccs.isEmpty shouldBe false
 
   }
 
