@@ -80,10 +80,9 @@ object TaskSetGenerator {
         } yield Task(name, c, d, t, o)
 
       val generatedTaskSet = TaskSet(set)
-      if (generatedTaskSet.uFactor < uFactor - derivPercentage && generatedTaskSet.uFactor > uFactor + derivPercentage) {
-        genTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, maxAttempt, currAttempt + 1)
-      }
-      else generatedTaskSet
+      if (generatedTaskSet.uFactor < uFactor - derivPercentage && generatedTaskSet.uFactor > uFactor + derivPercentage)
+        return genTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, maxAttempt, currAttempt + 1)
+      generatedTaskSet
     }
     genTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, maxAttempt, 0)
   }
@@ -119,10 +118,9 @@ object TaskSetGenerator {
 
 
       val generatedTaskSet =  TaskSet(set)
-      if(!schedTest(generatedTaskSet)._1 || (generatedTaskSet.uFactor < uFactor - derivPercentage && generatedTaskSet.uFactor > uFactor + derivPercentage)){
-        genSchedTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, schedTest, maxAttempt,currAttempt + 1)
-      }
-      else generatedTaskSet
+      if(!schedTest(generatedTaskSet)._1 || (generatedTaskSet.uFactor < uFactor - derivPercentage && generatedTaskSet.uFactor > uFactor + derivPercentage))
+        return genSchedTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, schedTest, maxAttempt,currAttempt + 1)
+      generatedTaskSet
     }
     genSchedTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, schedTest, maxAttempt,0)
   }
