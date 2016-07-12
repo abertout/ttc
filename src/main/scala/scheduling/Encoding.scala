@@ -89,6 +89,7 @@ object Encoding {
     * @return encoded task set
     */
   def predsEncoding(taskSet: TaskSet): TaskSet = {
+    if(taskSet.tasksAndSuccs.isEmpty) return taskSet
     val tasksByP = taskSet.set.groupBy(_.t).values
     val taskSetsByP = tasksByP.map { l =>
       val subDepMap = MapUtils.filterMap(l, taskSet.tasksAndSuccs.getOrElse(Map.empty)).filter(_._2.nonEmpty)

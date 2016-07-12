@@ -67,6 +67,7 @@ class EncodingSpec extends UnitSpec{
 
 
       val taskSetDep = TaskSet(set = Seq(tauB, tauC, tauI, tauA, tauD, tauF, tauE, tauG, tauH), Some(dep))
+      val indepTaskSet = TaskSet(set = Seq(tauB, tauC, tauI, tauA, tauD, tauF, tauE, tauG, tauH), None)
     }
 
   def fixture2 =
@@ -180,6 +181,14 @@ class EncodingSpec extends UnitSpec{
     val expEncTaskSet = f3.encTaskSet
     val encTaskSet =  Encoding.predsEncoding(taskSet)
     val eqContent = encTaskSet equalContent expEncTaskSet
+    eqContent shouldEqual true
+  }
+
+  "The Chetto's encoding" should "not modified a task set without dependence" in {
+    val f1 = fixture
+    val taskSet = f1.indepTaskSet
+    val encTaskSet =  Encoding.predsEncoding(taskSet)
+    val eqContent = taskSet equalContent encTaskSet
     eqContent shouldEqual true
   }
 }
