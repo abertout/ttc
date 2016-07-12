@@ -54,14 +54,14 @@ object TaskSetGenerator {
 
   def genTaskSet(nTasks: Int, uFactor: Double, dMin: Double, dMax: Double,
                  asynchronous: Boolean, periodGen: TGeneration, nDiffPeriods: Int,
-                 uFactorGen: UGeneration, maxAttempt: Int = defaultDiscardLimit): TaskSet = {
+                 uFactorGen: UGeneration, maxAttempt: Option[Int] = Some(defaultDiscardLimit)): TaskSet = {
 
     @tailrec
     def genTaskSetAux(nTasks: Int, uFactor: Double, dMin: Double, dMax: Double,
                       asynchronous: Boolean, periodGen: TGeneration, nDiffPeriods: Int,
-                      uFactorGen: UGeneration, maxAttempt: Int = defaultDiscardLimit, currAttempt: Int): TaskSet = {
+                      uFactorGen: UGeneration, maxAttempt: Option[Int] = Some(defaultDiscardLimit), currAttempt: Int): TaskSet = {
 
-      if(currAttempt == maxAttempt) throw new Exception(s"Discard limit $maxAttempt exceeded")
+      if(!maxAttempt.isEmpty && currAttempt == maxAttempt.get) throw new Exception(s"Discard limit $maxAttempt exceeded")
 
       val tFactor = nTasks
       val uValues = uFactorGen(nTasks, uFactor)
@@ -80,17 +80,20 @@ object TaskSetGenerator {
         } yield Task(name, c, d, t, o)
 
       val generatedTaskSet = TaskSet(set)
-      if (generatedTaskSet.uFactor < uFactor - derivPercentage && generatedTaskSet.uFactor > uFactor + derivPercentage)
-        return genTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, maxAttempt, currAttempt + 1)
-      generatedTaskSet
+      if(maxAttempt.isEmpty) return generatedTaskSet
+      if (!(generatedTaskSet.uFactor < uFactor - derivPercentage && generatedTaskSet.uFactor > uFactor + derivPercentage))
+        return generatedTaskSet
+
+      genTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, maxAttempt, currAttempt + 1)
     }
-    genTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, maxAttempt, 0)
+    genTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, maxAttempt,0)
   }
+
 
 
   def genSchedTaskSet(nTasks: Int, uFactor: Double, dMin: Double, dMax: Double,
                       asynchronous: Boolean, periodGen: TGeneration, nDiffPeriods: Int,
-                      uFactorGen: UGeneration, schedTest: SchedTest, maxAttempt: Int = defaultDiscardLimit): TaskSet = {
+                      uFactorGen: UGeneration, schedTest: SchedTest, maxAttempt: Int): TaskSet = {
 
     @tailrec
     def genSchedTaskSetAux(nTasks: Int, uFactor: Double, dMin: Double, dMax: Double,
@@ -115,12 +118,10 @@ object TaskSetGenerator {
           o = if (asynchronous) (oMin + (oMax - oMin) * Random.nextDouble()).toInt else 0
         } yield Task(name, c, d, t, o)
 
-
-
       val generatedTaskSet =  TaskSet(set)
-      if(!schedTest(generatedTaskSet)._1 || (generatedTaskSet.uFactor < uFactor - derivPercentage && generatedTaskSet.uFactor > uFactor + derivPercentage))
-        return genSchedTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, schedTest, maxAttempt,currAttempt + 1)
-      generatedTaskSet
+      if(!(!schedTest(generatedTaskSet)._1 || (generatedTaskSet.uFactor < uFactor - derivPercentage && generatedTaskSet.uFactor > uFactor + derivPercentage)))
+        return generatedTaskSet
+      genSchedTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, schedTest, maxAttempt,currAttempt + 1)
     }
     genSchedTaskSetAux(nTasks, uFactor, dMin, dMax, asynchronous, periodGen, nDiffPeriods, uFactorGen, schedTest, maxAttempt,0)
   }
