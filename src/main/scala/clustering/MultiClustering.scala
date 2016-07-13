@@ -118,20 +118,23 @@ object MultiClustering {
       var flowMinCost: Option[TaskSet] = None
       var children = new ArrayBuffer[(TaskSet, Int, Int, ClusterDeadline.Value)]()
       currentFlow =  resultFlows(currFlowIdx)
+      var freeGrouping = false
 
-
-      while (i >= 0) {
+      while (i >= 0 && !freeGrouping) {
         var j = i - 1
-        while (j >= 0) {
+        while (j >= 0 && !freeGrouping) {
           val tauI = sortedFLow.set(i)
           val tauJ = sortedFLow.set(j)
-          val comp = new ClusteringCompanion(sortedFLow)
+          val comp = ClusteringCompanion(sortedFLow)
           if (comp.regroupable(tauI, tauJ)) {
             if (taskSetMinCost.get.isolatedTask(tauI, tauJ)) {
               if ((tauI.c + tauJ.c <= tauI.d) && (tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)) {
                 val newTaskSet = comp.fusion(tauI, tauJ, ClusterDeadline.DlMax)
                 val newSortedTs = TaskSet(newTaskSet.set.sortBy(_.d), newTaskSet.tasksAndSuccs)
                 resultFlows(currFlowIdx) = newSortedTs
+                val gobalComp = ClusteringCompanion(taskSetMinCost.get)
+                taskSetMinCost = Some(gobalComp.fusion(tauI, tauJ, ClusterDeadline.DlMax))
+                freeGrouping = true
               } else {
                 children += ((sortedFLow, i, j, ClusterDeadline.DlMin))
               }
@@ -143,19 +146,21 @@ object MultiClustering {
                 val succ = if (iSuccOfJ) tauI else tauJ
 
                 //Check the conditions
-                if (pred.d > succ.d) {
+                if (pred.d > succ.d && pred.c + succ.c <= pred.d) {
                   children += ((sortedFLow, i, j, ClusterDeadline.DlMin))
                 } else {
-                  if ((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || succ.d - succ.c <= pred.d)
+                  if (pred.c + succ.c <= succ.d && ((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d)))
                     children += ((sortedFLow, i, j, ClusterDeadline.DlSucc))
-                  else children += ((sortedFLow, i, j, ClusterDeadline.DlPred))
+                  else if(pred.c + succ.c <= pred.d && (!((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d))))
+                    children += ((sortedFLow, i, j, ClusterDeadline.DlPred))
                 }
-
               } else {
                 /*not isolated but no direct precedence relation */
-                if ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || tauI.d - tauI.c <= tauJ.d)
-                  children += ((taskSetMinCost.get, i, j, ClusterDeadline.DlMax))
-                else children += ((taskSetMinCost.get, i, j, ClusterDeadline.DlMin))
+                if (tauI.c + tauJ.c <= tauJ.d && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
+                  children += ((sortedFLow, i, j, ClusterDeadline.DlMax))
+                else if(tauI.c + tauJ.c <= tauI.d && (!(tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
+                  children += ((sortedFLow, i, j, ClusterDeadline.DlMin))
+
               }
             }
           }
@@ -164,57 +169,60 @@ object MultiClustering {
         i -= 1
       }
 
-      val schedulableChildren = new ArrayBuffer[(TaskSet,Array[TaskSet])]()
+      if(!freeGrouping){
 
-      for (tuple <- children) {
-        val (ts, ii, jj, dl) =  tuple
-        val comp = new ClusteringCompanion(ts)
-        val globalComp = new ClusteringCompanion(taskSetMinCost.get)
-        val updatedFlow = comp.fusion(ts.set(ii), ts.set(jj), dl)
-        val updatedTaskSet = globalComp.fusion(ts.set(ii), ts.set(jj), dl)
-        val updatedEncTaskSet = Encoding.predsEncoding(updatedTaskSet)
-        val updatedFlows: Array[TaskSet] = resultFlows.updated(currFlowIdx, updatedFlow)
-        val updatedEncFlows =  updatedFlows.map(ts => updatedEncTaskSet.restrictedTo(ts.set:_*))
+        val schedulableChildren = new ArrayBuffer[(TaskSet,Array[TaskSet])]()
 
-        val nonSched = updatedEncFlows.exists(!schedTest(_)._1)
+        for (tuple <- children) {
+          val (ts, ii, jj, dl) =  tuple
+          val comp = ClusteringCompanion(ts)
+          val globalComp =  ClusteringCompanion(taskSetMinCost.get)
+          val updatedFlow = comp.fusion(ts.set(ii), ts.set(jj), dl)
+          val updatedTaskSet = globalComp.fusion(ts.set(ii), ts.set(jj), dl)
+          val updatedEncTaskSet = Encoding.predsEncoding(updatedTaskSet)
+          val updatedFlows: Array[TaskSet] = resultFlows.updated(currFlowIdx, updatedFlow)
+          val updatedEncFlows =  updatedFlows.map(ts => updatedEncTaskSet.restrictedTo(ts.set:_*))
 
-        if (!nonSched) {              //If task set is schedulable
-          schedulableChildren += ((updatedTaskSet, updatedFlows))
-        }
-      }
-      var currGlobalTaskSet: Option[TaskSet] = taskSetMinCost
+          val nonSched = updatedEncFlows.exists(!schedTest(_)._1)
 
-
-      if (schedulableChildren.nonEmpty) {
-        val currFlow = schedulableChildren.map(_._2(currFlowIdx))
-
-        flowMinCost = Some(costFunction(currFlow))
-        val idxFMinCost = currFlow.indexOf(flowMinCost.get)
-        currGlobalTaskSet = Some(schedulableChildren(idxFMinCost)._1)
-        if (flowMinCost.isDefined) {
-          rta match {
-            case Some(rtaTest) =>
-              val encoded = Encoding.predsEncoding(flowMinCost.get)
-              for (task <- flowMinCost.get.set; encTask <- encoded.set) {
-                if (task.equals(encTask)) {
-                  task.r = encTask.r
-                }
-              }
-            case _ =>
+          if (!nonSched) {              //If task set is schedulable
+            schedulableChildren += ((updatedTaskSet, updatedFlows))
           }
         }
-      }
+        var currGlobalTaskSet: Option[TaskSet] = taskSetMinCost
 
-      if (flowMinCost.isDefined) {
-        resultFlows(currFlowIdx) = flowMinCost.get
-        taskSetMinCost = currGlobalTaskSet
-      }
-      else nInfeasibleFlows += 1
 
+        if (schedulableChildren.nonEmpty) {
+          val currFlow = schedulableChildren.map(_._2(currFlowIdx))
+
+          flowMinCost = Some(costFunction(currFlow))
+          val idxFMinCost = currFlow.indexOf(flowMinCost.get)
+          currGlobalTaskSet = Some(schedulableChildren(idxFMinCost)._1)
+          if (flowMinCost.isDefined) {
+            rta match {
+              case Some(rtaTest) =>
+                val encoded = Encoding.predsEncoding(flowMinCost.get)
+                val encodedRTA = rtaTest(encoded)._2
+                for (task <- flowMinCost.get.set; encTask <- encodedRTA.set) {
+                  if (task.equals(encTask)) {
+                    task.r = encTask.r
+                  }
+                }
+              case _ =>
+            }
+          }
+        }
+
+        if (flowMinCost.isDefined) {
+          resultFlows(currFlowIdx) = flowMinCost.get
+          taskSetMinCost = currGlobalTaskSet
+        }
+        else nInfeasibleFlows += 1
+
+      }
 
       currFlowIdx = (currFlowIdx + 1) % resultFlows.length
       currentFlow = resultFlows(currFlowIdx)
-
     }
 
     resultFlows
