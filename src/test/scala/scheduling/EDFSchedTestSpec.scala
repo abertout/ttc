@@ -185,7 +185,7 @@ class EDFSchedTestSpec extends UnitSpec{
     val tauC = Task("c", 4, 12, 13)
 
     val taskSet = new TaskSet(set = Seq(tauA, tauB, tauC))
-    EDFsufficientTestDevi(taskSet) shouldEqual true
+    EDFsufficientTestDevi(taskSet)._1 shouldEqual true
 
   }
 
@@ -196,11 +196,11 @@ class EDFSchedTestSpec extends UnitSpec{
     val taskSetWithR = fixture2.taskSet
 
     val tt = TaskSetGenerator.genTaskSet(30, 0.75d, 0.0d, 1.0d, asynchronous = false, LimitedHPDistinctPeriods, 5, UUnifast)
-    println(EDFresponseTimeAnalysisSpuri(tt),tt.uFactor,tt.periodsLCM)
-    Export.toCheddarXml(tt, "EDF", "/tmp/EDF_ched.xml")
-    Export.toSimSoXml(tt, "EDF", "/tmp/EDF_sim.xml")
-    tt.set.foreach(task => println(task.name, task.r))
-    println(Export.genScalaTaskSetDecl(tt, "taskSet"))
+    //println(EDFresponseTimeAnalysisSpuri(tt),tt.uFactor,tt.periodsLCM)
+    //Export.toCheddarXml(tt, "EDF", "/tmp/EDF_ched.xml")
+    //Export.toSimSoXml(tt, "EDF", "/tmp/EDF_sim.xml")
+    //tt.set.foreach(task => println(task.name, task.r))
+    //println(Export.genScalaTaskSetDecl(tt, "taskSet"))
 
     EDFresponseTimeAnalysisSpuri(taskSet)
     val diffR =  !taskSet.set.view.zip(taskSetWithR.set).forall {
@@ -208,7 +208,7 @@ class EDFSchedTestSpec extends UnitSpec{
     }
 
     diffR shouldEqual false
-    EDFresponseTimeAnalysisSpuri(spuriTaskSet) shouldEqual true
+    EDFresponseTimeAnalysisSpuri(spuriTaskSet)._1 shouldEqual true
   }
 
 
@@ -218,7 +218,7 @@ class EDFSchedTestSpec extends UnitSpec{
     val taskSetWithR = fixture2.taskSet
 
     val guanTaskSet = f.guanTaskSet
-    EDFresponseTimeAnalysisGuan(guanTaskSet) shouldEqual true
+    EDFresponseTimeAnalysisGuan(guanTaskSet)._1 shouldEqual true
     EDFresponseTimeAnalysisGuan(taskSet)
     val diffR =  !taskSet.set.view.zip(taskSetWithR.set).forall {
       case (t1, t2) => t1.r == t2.r

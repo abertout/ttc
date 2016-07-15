@@ -83,7 +83,7 @@ class DMSchedTestSpec extends UnitSpec{
     val f = fixture
     val taskSet = f.taskSet
 
-    DMresponseTimeAnalysis(taskSet) shouldEqual true
+    DMresponseTimeAnalysis(taskSet)._1 shouldEqual true
 
     taskSet.set.head.r should equal(Some(128))
     taskSet.set(1).r should equal(Some(7091))
@@ -111,7 +111,7 @@ class DMSchedTestSpec extends UnitSpec{
   "The sufficient test for DM" should "decide the schedulability of task set" in {
     val f = fixture
     val taskSet = f.simpleTaskSet
-    DMsufficientSchedulabilityTest(taskSet) shouldEqual true
+    DMsufficientSchedulabilityTest(taskSet)._1 shouldEqual true
   }
 
 
