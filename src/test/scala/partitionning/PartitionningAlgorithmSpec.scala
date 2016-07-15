@@ -39,7 +39,7 @@
 package ttc.partitionning
 
 import ttc.partitionning.{ButtazoHeuristicH1, ButtazoHeuristicH2, GlobalHeuristic, PartitionningAlgorithm}
-import ttc.scheduling.EDFqPA
+import ttc.scheduling.{DMresponseTimeAnalysis, EDFqPA}
 import ttc.taskmodel.{Task, TaskSet}
 import ttc.UnitSpec
 
@@ -129,6 +129,57 @@ class PartitionningAlgorithmSpec extends UnitSpec{
     val f = fixture
     ButtazoHeuristicH1.uFactor(f.taskSet.set) shouldEqual 0.56d
   }
+
+  it should "behave correctly with an empty dependent set of tasks" in {
+    val a = Task("a", 18, 257, 560, 0, None)
+    val b = Task("b", 75, 364, 560, 0, None)
+    val c = Task("c", 184, 2097, 2400, 0, None)
+    val d = Task("d", 3580, 89731, 92400, 0, None)
+    val e = Task("e", 195, 83486, 92400, 0, None)
+    val f = Task("f", 188, 1615, 2400, 0, None)
+    val g = Task("g", 4288, 16463, 92400, 0, None)
+    val h = Task("h", 23353, 80236, 92400, 0, None)
+    val i = Task("i", 28, 1281, 2400, 0, None)
+    val j = Task("j", 23987, 45078, 92400, 0, None)
+    val k = Task("k", 6742, 29671, 277200, 0, None)
+    val l = Task("l", 4576, 88943, 92400, 0, None)
+    val m = Task("m", 2729, 54909, 92400, 0, None)
+    val n = Task("n", 11, 195, 560, 0, None)
+    val o = Task("o", 40, 326, 560, 0, None)
+    val p = Task("p", 35, 481, 560, 0, None)
+    val q = Task("q", 51, 216, 560, 0, None)
+    val r = Task("r", 4948, 121252, 277200, 0, None)
+    val s = Task("s", 13199, 48138, 92400, 0, None)
+    val t = Task("t", 14107, 43030, 92400, 0, None)
+    val taskSet = TaskSet(set = Seq(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t))
+
+    val part = ButtazoHeuristicH1.partitionning(taskSet,DMresponseTimeAnalysis).get
+    part.size shouldEqual 2
+    part.map(_.size).sum shouldEqual taskSet.size
+
+
+  }
+
+  it should "behave correctly with an empty independent set of tasks" in {
+    val a = Task("a", 69, 206, 400, 0, None)
+    val b = Task("b", 615, 725, 1680, 0, None)
+    val c = Task("c", 201, 344, 400, 0, None)
+    val d = Task("d", 3700, 4354, 25200, 0, None)
+    val e = Task("e", 725, 2676, 25200, 0, None)
+
+    val dep = Map(
+      a -> Set(b,c),
+      b -> Set(d),
+      c -> Set(d),
+      d -> Set(e)
+    )
+    val depTaskSet = TaskSet(set = Seq(a,b,c,d,e), Some(dep))
+    val part = ButtazoHeuristicH1.partitionning(depTaskSet,DMresponseTimeAnalysis).get
+
+    part.size shouldEqual 2
+    part.map(_.size).sum shouldEqual depTaskSet.size
+  }
+
 
   "The lower bound on the number of flows" should "should be correct" in {
     val f = fixture

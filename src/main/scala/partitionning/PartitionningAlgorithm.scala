@@ -148,7 +148,8 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
   def heuristicPartitionning(taskSet: TaskSet, initialNbOfFlows: Int, schedTest: SchedTest): Option[Vector[Seq[Task]]] = {
 
     val (indepSet, depSet) = taskSet.set.partition(task => taskSet.directPreds(task).isEmpty && taskSet.directSuccs(task).isEmpty)
-    val (indepTaskSet, depTaskSet) = (taskSet.restrictedTo(indepSet:_*), taskSet.restrictedTo(depSet:_*))
+    val indepTaskSet = if(indepSet.nonEmpty) Some(taskSet.restrictedTo(indepSet:_*)) else None
+    val depTaskSet = if(depSet.nonEmpty) Some(taskSet.restrictedTo(depSet:_*)) else None
 
     @tailrec
     def depTasksStep(taskSet: TaskSet, flows: Vector[Seq[Task]], remainingTaskSet: TaskSet, initialNbOfFlows: Int, schedTest: SchedTest): (Vector[Seq[Task]],Seq[Task]) = {
@@ -173,17 +174,21 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
       }
 
 
-    def sortByDecExecTime(tau1: Task, tau2: Task): Boolean = {
-      tau1.c / tau1.t.toDouble >= tau2.c / tau2.t.toDouble
-    }
+    def sortByDecExecTime(tau1: Task, tau2: Task): Boolean = tau1.c / tau1.t.toDouble >= tau2.c / tau2.t.toDouble
 
-    val (firstFlows, remainingDepTasks) = depTasksStep(depTaskSet, Vector.empty[Seq[Task]], depTaskSet, initialNbOfFlows, schedTest)
-    val sortedRemainingTasks = (remainingDepTasks ++ indepTaskSet.set).sortWith(sortByDecExecTime)
+    val (firstFlows, remainingDepTasks) = depTaskSet match{
+      case Some(depTs) => depTasksStep(depTs, Vector.empty[Seq[Task]], depTs, initialNbOfFlows, schedTest)
+      case None => (Vector.empty[Seq[Task]], Seq.empty)
+    }
+    val sortedRemainingTasks = indepTaskSet match {
+      case Some(indepTs) => (remainingDepTasks ++ indepTs.set).sortWith(sortByDecExecTime)
+      case None => remainingDepTasks.sortWith(sortByDecExecTime)
+    }
     val finalFlows = remainingTasksStep(firstFlows, sortedRemainingTasks, schedTest)
 
     if(finalFlows.exists(uFactor(_) > 1.00d))
-      None
-    else Some(finalFlows)
+      return None
+    Some(finalFlows)
   }
 
   def fitElseNew(taskSet: TaskSet, flows: Vector[Seq[Task]], cp: Seq[Task], schedTest: SchedTest): Vector[Seq[Task]] = {
