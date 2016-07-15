@@ -40,7 +40,9 @@ package ttc.partitionning
 
 import ttc.scheduling.{Encoding, SchedTest}
 import ttc.taskmodel.{Task, TaskSet}
+
 import scala.annotation.tailrec
+import scala.collection.immutable.::
 import scala.collection.mutable.ArrayBuffer
 
 
@@ -146,46 +148,44 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
 
 
   def heuristicPartitionning(taskSet: TaskSet, initialNbOfFlows: Int, schedTest: SchedTest): Option[Vector[Seq[Task]]] = {
-
     val (indepSet, depSet) = taskSet.set.partition(task => taskSet.directPreds(task).isEmpty && taskSet.directSuccs(task).isEmpty)
     val indepTaskSet = if(indepSet.nonEmpty) Some(taskSet.restrictedTo(indepSet:_*)) else None
     val depTaskSet = if(depSet.nonEmpty) Some(taskSet.restrictedTo(depSet:_*)) else None
 
     @tailrec
-    def depTasksStep(taskSet: TaskSet, flows: Vector[Seq[Task]], remainingTaskSet: TaskSet, initialNbOfFlows: Int, schedTest: SchedTest): (Vector[Seq[Task]],Seq[Task]) = {
-      if (initialNbOfFlows == flows.length) (flows, remainingTaskSet.set)
-      else {
-        val cp = PartitionningAlgorithm.criticalPath(remainingTaskSet)
-        val updatedFlows = fitElseNew(taskSet, flows, cp, schedTest)
-        if(cp.toSet == remainingTaskSet.set.toSet)
-          return (updatedFlows, Seq.empty[Task]) //Avoid to make a recursive call one a forbidden empty task set
-        val updatedSet = remainingTaskSet.remove(cp: _*)
-        depTasksStep(taskSet, updatedFlows, updatedSet, initialNbOfFlows, schedTest)
-      }
+    def depTasksStep(taskSet: TaskSet, flows: Vector[Seq[Task]], remainingTaskSet: TaskSet, initialNbOfFlows: Int, schedTest: SchedTest): (Vector[Seq[Task]],List[Task]) = {
+      if (initialNbOfFlows == flows.length) return (flows, remainingTaskSet.set.toList)
+      val cp = PartitionningAlgorithm.criticalPath(remainingTaskSet)
+      val updatedFlows = fitElseNew(taskSet, flows, cp, schedTest)
+      if(cp.toSet == remainingTaskSet.set.toSet)
+        return (updatedFlows, List.empty[Task]) //Avoid to make a recursive call one a forbidden empty task set
+      val updatedSet = remainingTaskSet.remove(cp: _*)
+      depTasksStep(taskSet, updatedFlows, updatedSet, initialNbOfFlows, schedTest)
     }
 
-    @tailrec
-    def remainingTasksStep(flows: Vector[Seq[Task]], setOfTasks: Seq[Task], schedTest: SchedTest): Vector[Seq[Task]] =
-      setOfTasks match {
-        case task :: rest =>
-          val updatedFlows = fitElseNew(taskSet, flows, Seq(task), schedTest)
-          remainingTasksStep(updatedFlows, rest, schedTest)
-        case _ => flows
-      }
+    //@tailrec
+    def remainingTasksStep(flows: Vector[Seq[Task]], setOfTasks: List[Task], schedTest: SchedTest): Vector[Seq[Task]] = setOfTasks match {
+      case task :: rest =>
+        val updatedFlows = fitElseNew(taskSet, flows, Seq(task), schedTest)
+        remainingTasksStep(updatedFlows, rest, schedTest)
+      case _ => flows
+    }
 
 
     def sortByDecExecTime(tau1: Task, tau2: Task): Boolean = tau1.c / tau1.t.toDouble >= tau2.c / tau2.t.toDouble
 
     val (firstFlows, remainingDepTasks) = depTaskSet match{
       case Some(depTs) => depTasksStep(depTs, Vector.empty[Seq[Task]], depTs, initialNbOfFlows, schedTest)
-      case None => (Vector.empty[Seq[Task]], Seq.empty)
+      case None => (Vector.empty[Seq[Task]], List.empty)
     }
 
-    val sortedRemainingTasks = indepTaskSet match {
+    val sortedRemainingTasks: List[Task] = indepTaskSet match { //List mandatory for pattern matching
       case Some(indepTs) => (remainingDepTasks ++ indepTs.set).sortWith(sortByDecExecTime)
       case None => remainingDepTasks.sortWith(sortByDecExecTime)
     }
+
     val finalFlows = remainingTasksStep(firstFlows, sortedRemainingTasks, schedTest)
+
 
     if(finalFlows.exists(uFactor(_) > 1.00d))
       return None
@@ -237,22 +237,18 @@ object GlobalHeuristic extends PartitionningAlgorithm {
 
     @tailrec
     def minNbFlows(taskSet: TaskSet, flows: Vector[Seq[Task]], remainingTaskSet: TaskSet, schedTest: SchedTest): Vector[Seq[Task]] = {
-      if(remainingTaskSet.set.isEmpty) flows
-      else{
-        val cp = PartitionningAlgorithm.criticalPath(remainingTaskSet)
-        val updatedFlows = ButtazoHeuristicH1.fitElseNew(taskSet, flows, cp, schedTest)
-        if(cp.toSet == remainingTaskSet.set.toSet)
-          return updatedFlows //Avoid to make a recursive call one a forbidden empty task set
-        minNbFlows(taskSet, updatedFlows, remainingTaskSet.remove(cp:_*), schedTest)
-      }
+      if(remainingTaskSet.set.isEmpty) return flows
+      val cp = PartitionningAlgorithm.criticalPath(remainingTaskSet)
+      val updatedFlows = ButtazoHeuristicH1.fitElseNew(taskSet, flows, cp, schedTest)
+      if(cp.toSet == remainingTaskSet.set.toSet)
+        return updatedFlows //Avoid to make a recursive call one a forbidden empty task set
+      minNbFlows(taskSet, updatedFlows, remainingTaskSet.remove(cp:_*), schedTest)
     }
 
     val flows = minNbFlows(taskSet, Vector.empty[Seq[Task]], taskSet, schedTest)
-
-
     if(flows.exists(uFactor(_) > 1.00d))
       throw new Exception("Partitionning infeasible")
-    else Some(flows)
+    Some(flows)
 
   }
 
