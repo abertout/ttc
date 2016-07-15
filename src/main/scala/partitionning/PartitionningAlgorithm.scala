@@ -157,7 +157,8 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
       else {
         val cp = PartitionningAlgorithm.criticalPath(remainingTaskSet)
         val updatedFlows = fitElseNew(taskSet, flows, cp, schedTest)
-        if(cp == remainingTaskSet.set) return (updatedFlows, Seq.empty[Task]) //Avoid to make a recursive call one a forbidden empty task set
+        if(cp.toSet == remainingTaskSet.set.toSet)
+          return (updatedFlows, Seq.empty[Task]) //Avoid to make a recursive call one a forbidden empty task set
         val updatedSet = remainingTaskSet.remove(cp: _*)
         depTasksStep(taskSet, updatedFlows, updatedSet, initialNbOfFlows, schedTest)
       }
@@ -170,7 +171,6 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
           val updatedFlows = fitElseNew(taskSet, flows, Seq(task), schedTest)
           remainingTasksStep(updatedFlows, rest, schedTest)
         case _ => flows
-
       }
 
 
@@ -180,6 +180,7 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
       case Some(depTs) => depTasksStep(depTs, Vector.empty[Seq[Task]], depTs, initialNbOfFlows, schedTest)
       case None => (Vector.empty[Seq[Task]], Seq.empty)
     }
+
     val sortedRemainingTasks = indepTaskSet match {
       case Some(indepTs) => (remainingDepTasks ++ indepTs.set).sortWith(sortByDecExecTime)
       case None => remainingDepTasks.sortWith(sortByDecExecTime)
@@ -240,7 +241,8 @@ object GlobalHeuristic extends PartitionningAlgorithm {
       else{
         val cp = PartitionningAlgorithm.criticalPath(remainingTaskSet)
         val updatedFlows = ButtazoHeuristicH1.fitElseNew(taskSet, flows, cp, schedTest)
-        if(cp == remainingTaskSet.set) return updatedFlows //Avoid to make a recursive call one a forbidden empty task set
+        if(cp.toSet == remainingTaskSet.set.toSet)
+          return updatedFlows //Avoid to make a recursive call one a forbidden empty task set
         minNbFlows(taskSet, updatedFlows, remainingTaskSet.remove(cp:_*), schedTest)
       }
     }
