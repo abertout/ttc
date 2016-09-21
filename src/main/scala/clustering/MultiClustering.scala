@@ -43,6 +43,7 @@ import ttc.scheduling.{Encoding, ResponseTimeAnalysis, SchedTest}
 import ttc.taskmodel.{Task, TaskSet}
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.parallel.immutable.ParVector
 
 object MultiClustering {
 
@@ -81,7 +82,7 @@ object MultiClustering {
     optFlows match {
       case Some(flows) =>
         val (depFlows, indepFlows) = partitionFlows(taskSet, flows)
-        val clusteredIndepFlows: Seq[TaskSet] = indepFlows.map(flow => MonoClustering.greedyBFSClustering(taskSet.restrictedTo(flow:_*),clusSchedTest, costFunction, rta))
+        val clusteredIndepFlows: ParVector[TaskSet] = indepFlows.par.map(flow => MonoClustering.greedyBFSClustering(taskSet.restrictedTo(flow:_*),clusSchedTest, costFunction, rta)) //uses scala parallel collection to distribute the computation over several threads
         val depFlowsTaskSet: Vector[TaskSet] = depFlows.map(flow => taskSet.restrictedTo(flow:_*))
         val clusteredDepFlows: Seq[TaskSet] =
           if(depFlowsTaskSet.nonEmpty) greedyBFSHeuristic(taskSet, depFlowsTaskSet, clusSchedTest, costFunction, rta)
