@@ -84,14 +84,14 @@ object Numbers {
   }
 
   /**
-    * Repeat partitions method until having no zero
+    * Repeat partitions method until having a tolerated pourcentage of zero
     * @param n number of partitions
     * @param total sum of the partitions
     * @return
     */
-  def partitionsWithoutZero(n: Int, total: Int): Seq[Int] = {
+  def partitionsWithoutTooMuchZero(n: Int, total: Int, tolerance: Double): Seq[Int] = {
     val part =  Numbers.partitions(n, total)
-    if(part.contains(0)) partitionsWithoutZero(n, total)
+    if(part.count(_ == 0)/n.toDouble > .1) partitionsWithoutTooMuchZero(n, total, tolerance)
     else part
   }
 }

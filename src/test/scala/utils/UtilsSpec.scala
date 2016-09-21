@@ -100,8 +100,8 @@ class UtilsSpec extends UnitSpec{
     seq.sum shouldEqual 15
   }
 
-  "Method partitionsWithoutZero" should "generate a random partition from a given sum" in {
-    val seq = Numbers.partitionsWithoutZero(6, 15)
+  "Method partitionsWithoutTooMuchZero" should "generate a random partition from a given sum" in {
+    val seq = Numbers.partitionsWithoutTooMuchZero(6, 15, 0d)
     seq.contains(0) shouldEqual false
   }
 

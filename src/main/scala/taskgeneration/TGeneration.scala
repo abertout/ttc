@@ -80,7 +80,7 @@ object LimitedHPDistinctPeriods extends TGeneration {
     }
 
     val dispPeriods = distinctPeriods(nDiffPeriods, Seq.empty)
-    val occurences = Numbers.partitionsWithoutZero(dispPeriods.size, nTask)
+    val occurences = Numbers.partitionsWithoutTooMuchZero(dispPeriods.size, nTask, 0d)
 
     val periods = (dispPeriods zip occurences).flatMap {
       case (p, nb) => List.fill(nb)(p)
@@ -95,7 +95,7 @@ object UniformDistinctPeriods extends TGeneration {
     def apply(nTask: Int, nDiffPeriods: Int): Vector[Double] = {
 
       val dispPeriods = rndUniform(10, 1000, nDiffPeriods)
-      val occurences = Numbers.partitionsWithoutZero(dispPeriods.size, nTask)
+      val occurences = Numbers.partitionsWithoutTooMuchZero(dispPeriods.size, nTask, 0d)
       val periods = (dispPeriods zip occurences).flatMap{
         case (p, nb) =>  List.fill(nb)(p)
       }
