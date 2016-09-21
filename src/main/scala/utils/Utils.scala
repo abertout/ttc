@@ -90,6 +90,7 @@ object Numbers {
     * @return
     */
   def partitionsWithoutTooMuchZero(n: Int, total: Int, tolerance: Double): Seq[Int] = {
+    require(tolerance >= 0 && tolerance <= 1d, "Tolerance must be in [0.0,1.0]")
     val part =  Numbers.partitions(n, total)
     if(part.count(_ == 0)/n.toDouble > .1) partitionsWithoutTooMuchZero(n, total, tolerance)
     else part
