@@ -80,7 +80,7 @@ object ByLevel extends PrecedenceGeneration {
         taskOfOnePeriod <- tasksByPeriod
         tasks = taskOfOnePeriod._2.sortBy(_.d)
         maxHeight = (levels * tasks.size).toInt
-        nbTasksByLevel = Numbers.partitionsWithoutTooMuchZero(maxHeight, tasks.size,.1).filter(_ != 0)
+        nbTasksByLevel = Numbers.partitionsWithoutTooMuchZero(maxHeight, tasks.size,.15).filter(_ != 0)
         nLevel = nbTasksByLevel.size
         tasksByLevel = nbTasksByLevel.foldLeft((tasks,Seq.empty[Seq[Task]])) {
           case ((oldTasks, newTasks), occ) => (oldTasks.drop(occ),newTasks.:+(oldTasks.take(occ)))
