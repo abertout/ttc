@@ -101,9 +101,9 @@ object MonoClustering {
             } else {
               /*not isolated but no direct precedence relation */
               if (tauI.c + tauJ.c <= tauJ.d && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
-                children += ((taskSet, i, j, ClusterDeadline.DlMax))
+                children += ((sortedTaskSet, i, j, ClusterDeadline.DlMax))
               else if(tauI.c + tauJ.c <= tauI.d && (!(tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
-                children += ((taskSet, i, j, ClusterDeadline.DlMin))
+                children += ((sortedTaskSet, i, j, ClusterDeadline.DlMin))
             }
           }
         }
