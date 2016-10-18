@@ -39,7 +39,7 @@
 package ttc.clustering
 
 import ttc.scheduling.{Encoding, ResponseTimeAnalysis, SchedTest}
-import ttc.taskmodel.TaskSet
+import ttc.taskmodel.{Task, TaskSet}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -58,10 +58,17 @@ object MonoClustering {
   def greedyBFSClustering(taskSet: TaskSet, schedTest: SchedTest, costFunction: CostFunction, rta: Option[ResponseTimeAnalysis]): TaskSet = {
     val taskSetRTA: TaskSet = rta match {
       case None => taskSet
-      case Some(rt) =>
+      case Some(rt) if(taskSet.tasksAndSuccs.isEmpty)  =>  rt(taskSet)._2
+      case Some(rt) => //RTA on encoded but original task set parameters should not be modified
         val encoded = Encoding.predsEncoding(taskSet)
-        rt(encoded)._2
+        val rtaEncoded = rt(encoded)._2
+        val sorted = taskSet.set.sortBy(_.name)
+        val depTaskSetwithR = sorted.zip(rtaEncoded.set.sortBy(_.name)).map{
+          case (tau,tauEnc) => Task(tau.name,tau.c,tau.d,tau.t,tau.o,tauEnc.r)
+        }
+        TaskSet(depTaskSetwithR,taskSet.tasksAndSuccs)
     }
+
     val sortedTaskSet: TaskSet = TaskSet(taskSetRTA.set.sortBy(_.d), taskSetRTA.tasksAndSuccs)
     var i = sortedTaskSet.size - 1
     var setMinCost: Option[TaskSet] = None
