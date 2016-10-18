@@ -83,7 +83,7 @@ object MultiClustering {
       case Some(flows) =>
         val (depFlows, indepFlows) = partitionFlows(taskSet, flows)
         val clusteredIndepFlows: ParVector[TaskSet] = indepFlows.par.map(flow => MonoClustering.greedyBFSClustering(taskSet.restrictedTo(flow:_*),clusSchedTest, costFunction, rta)) //uses scala parallel collection to distribute the computation over several threads
-        val depFlowsTaskSet: Vector[TaskSet] = depFlows.map(flow => taskSet.restrictedTo(flow:_*))
+      val depFlowsTaskSet: Vector[TaskSet] = depFlows.map(flow => taskSet.restrictedTo(flow:_*))
         val clusteredDepFlows: Seq[TaskSet] =
           if(depFlowsTaskSet.nonEmpty) greedyBFSHeuristic(taskSet, depFlowsTaskSet, clusSchedTest, costFunction, rta)
           else Seq.empty
@@ -115,59 +115,59 @@ object MultiClustering {
     while(nInfeasibleFlows < flows.length) {
 
       val sortedFLow: TaskSet = TaskSet(currentFlow.set.sortBy(_.d), currentFlow.tasksAndSuccs)
-      var i = sortedFLow.size - 1
+      var j = sortedFLow.size - 1
       var flowMinCost: Option[TaskSet] = None
       var children = new ArrayBuffer[(TaskSet, Int, Int, ClusterDeadline.Value)]()
       currentFlow =  resultFlows(currFlowIdx)
       var freeGrouping = false
 
-      while (i >= 0 && !freeGrouping) {
-        var j = i - 1
-        while (j >= 0 && !freeGrouping) {
-          val tauI = sortedFLow.set(i)
+      while (j >= 0 && !freeGrouping) {
+        var i = j - 1
+        while (i >= 0 && !freeGrouping) {
           val tauJ = sortedFLow.set(j)
+          val tauI = sortedFLow.set(i)
           val comp = ClusteringCompanion(sortedFLow)
-          if (comp.regroupable(tauI, tauJ)) {
-            if (taskSetMinCost.get.isolatedTask(tauI, tauJ)) {
-              if ((tauI.c + tauJ.c <= tauI.d) && (tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)) {
-                val newTaskSet = comp.fusion(tauI, tauJ, ClusterDeadline.DlMax)
+          if (comp.regroupable(tauJ, tauI)) {
+            if (taskSetMinCost.get.isolatedTask(tauJ, tauI)) {
+              if ((tauJ.c + tauI.c <= tauJ.d) && (tauJ.r.isDefined && tauJ.r.get - tauJ.c <= tauI.d) || (tauJ.d - tauJ.c <= tauI.d)) { //Case 1.a
+                val newTaskSet = comp.fusion(tauJ, tauI, ClusterDeadline.DlMax)
                 val newSortedTs = TaskSet(newTaskSet.set.sortBy(_.d), newTaskSet.tasksAndSuccs)
                 resultFlows(currFlowIdx) = newSortedTs
                 val gobalComp = ClusteringCompanion(taskSetMinCost.get)
-                taskSetMinCost = Some(gobalComp.fusion(tauI, tauJ, ClusterDeadline.DlMax))
+                taskSetMinCost = Some(gobalComp.fusion(tauJ, tauI, ClusterDeadline.DlMax))
                 freeGrouping = true
-              } else {
-                children += ((sortedFLow, i, j, ClusterDeadline.DlMin))
+              } else { //Case 1.b
+                children += ((sortedFLow, j, i, ClusterDeadline.DlMin))
               }
             } else {
-              val iPredOfJ = sortedFLow.directPredRelation(tauI, tauJ)
-              val iSuccOfJ = sortedFLow.directSuccRelation(tauI, tauJ)
+              val iPredOfJ = sortedFLow.directPredRelation(tauJ, tauI)
+              val iSuccOfJ = sortedFLow.directSuccRelation(tauJ, tauI)
               if (iPredOfJ || iSuccOfJ) {
-                val pred = if (iPredOfJ) tauI else tauJ
-                val succ = if (iSuccOfJ) tauI else tauJ
+                val pred = if (iPredOfJ) tauJ else tauI
+                val succ = if (iSuccOfJ) tauJ else tauI
 
                 //Check the conditions
-                if (pred.d > succ.d && pred.c + succ.c <= pred.d) {
-                  children += ((sortedFLow, i, j, ClusterDeadline.DlMin))
+                if (pred.d > succ.d && pred.c + succ.c <= succ.d) {
+                  children += ((sortedFLow, j, i, ClusterDeadline.DlSucc)) //Case 2.a
                 } else {
-                  if (pred.c + succ.c <= succ.d && ((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d)))
-                    children += ((sortedFLow, i, j, ClusterDeadline.DlSucc))
-                  else if(pred.c + succ.c <= pred.d && (!((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d))))
-                    children += ((sortedFLow, i, j, ClusterDeadline.DlPred))
+                  if (pred.c + succ.c <= succ.d && ((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d)))  //Case 2.b
+                    children += ((sortedFLow, j, i, ClusterDeadline.DlSucc))
+                  else if(pred.c + succ.c <= pred.d && (!((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d))))  //Case 2.c
+                    children += ((sortedFLow, j, i, ClusterDeadline.DlPred))
                 }
               } else {
                 /*not isolated but no direct precedence relation */
-                if (tauI.c + tauJ.c <= tauJ.d && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
-                  children += ((sortedFLow, i, j, ClusterDeadline.DlMax))
-                else if(tauI.c + tauJ.c <= tauI.d && (!(tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
-                  children += ((sortedFLow, i, j, ClusterDeadline.DlMin))
+                if (tauJ.c + tauI.c <= tauJ.d && ((tauJ.r.isDefined && tauJ.r.get - tauJ.c <= tauI.d) || (tauJ.d - tauJ.c <= tauI.d))) //Case 1.a
+                  children += ((sortedFLow, j, i, ClusterDeadline.DlMax))
+                else if(tauJ.c + tauI.c <= tauI.d && (!(tauJ.r.isDefined && tauJ.r.get - tauJ.c <= tauI.d) || (tauJ.d - tauJ.c <= tauI.d)))  //Case 1.b
+                  children += ((sortedFLow, j, i, ClusterDeadline.DlMin))
 
               }
             }
           }
-          j -= 1
+          i -= 1
         }
-        i -= 1
+        j -= 1
       }
 
       if(!freeGrouping){
