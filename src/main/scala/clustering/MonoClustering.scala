@@ -70,53 +70,53 @@ object MonoClustering {
     }
 
     val sortedTaskSet: TaskSet = TaskSet(taskSetRTA.set.sortBy(_.d), taskSetRTA.tasksAndSuccs)
-    var i = sortedTaskSet.size - 1
+    var j = sortedTaskSet.size - 1
     var setMinCost: Option[TaskSet] = None
     var children = new ArrayBuffer[(TaskSet, Int, Int, ClusterDeadline.Value)]()
 
-    while (i >= 0) {
-      var j = i - 1
-      while (j >= 0) {
-        val tauI = sortedTaskSet.set(i)
+    while (j >= 0) {
+      var i = j - 1
+      while (i >= 0) {
         val tauJ = sortedTaskSet.set(j)
+        val tauI = sortedTaskSet.set(i)
         val comp = ClusteringCompanion(sortedTaskSet)
-        if (comp.regroupable(tauI, tauJ)) {
-          if (taskSet.isolatedTask(tauI, tauJ)) {
-            if ((tauI.c + tauJ.c <= tauI.d) && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d))) {
-              val newTaskSet = comp.fusion(tauI, tauJ, ClusterDeadline.DlMax)
+        if (comp.regroupable(tauJ, tauI)) {
+          if (taskSet.isolatedTask(tauJ, tauI)) {
+            if ((tauJ.c + tauI.c <= tauJ.d) && ((tauJ.r.isDefined && tauJ.r.get - tauJ.c <= tauI.d) || (tauJ.d - tauJ.c <= tauI.d))) { //Case 1.a
+              val newTaskSet = comp.fusion(tauJ, tauI, ClusterDeadline.DlMax)
               return greedyBFSClustering(newTaskSet, schedTest, costFunction, rta)
-            } else if(tauI.c + tauJ.c <= tauJ.d){
-              children += ((sortedTaskSet, i, j, ClusterDeadline.DlMin))
+            } else if(tauJ.c + tauI.c <= tauI.d){ //Case 1.b
+              children += ((sortedTaskSet, j, i, ClusterDeadline.DlMin))
             }
           } else {
-            val iPredOfJ = sortedTaskSet.directPredRelation(tauI, tauJ)
-            val iSuccOfJ = sortedTaskSet.directSuccRelation(tauI, tauJ)
+            val iPredOfJ = sortedTaskSet.directPredRelation(tauJ, tauI)
+            val iSuccOfJ = sortedTaskSet.directSuccRelation(tauJ, tauI)
             if (iPredOfJ || iSuccOfJ) {
-              val pred = if (iPredOfJ) tauI else tauJ
-              val succ = if (iSuccOfJ) tauI else tauJ
+              val pred = if (iPredOfJ) tauJ else tauI
+              val succ = if (iSuccOfJ) tauJ else tauI
 
               //Check the conditions
-              if (pred.d > succ.d && pred.c + succ.c <= pred.d) {
-                children += ((sortedTaskSet, i, j, ClusterDeadline.DlMin))
+              if (pred.d > succ.d && pred.c + succ.c <= succ.d) { //Case 2.a
+                children += ((sortedTaskSet, j, i, ClusterDeadline.DlSucc))
               } else {
-                if (pred.c + succ.c <= succ.d && ((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d)))
-                  children += ((sortedTaskSet, i, j, ClusterDeadline.DlSucc))
-                else if(pred.c + succ.c <= pred.d && (!((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d))))
-                  children += ((sortedTaskSet, i, j, ClusterDeadline.DlPred))
+                if (pred.c + succ.c <= succ.d && ((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d))) //Case 2.b
+                  children += ((sortedTaskSet, j, i, ClusterDeadline.DlSucc))
+                else if(pred.c + succ.c <= pred.d && (!((succ.r.isDefined && succ.r.get - succ.c <= pred.d) || (succ.d - succ.c <= pred.d)))) //Case 2.c
+                  children += ((sortedTaskSet, j, i, ClusterDeadline.DlPred))
               }
 
             } else {
               /*not isolated but no direct precedence relation */
-              if (tauI.c + tauJ.c <= tauJ.d && ((tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
-                children += ((sortedTaskSet, i, j, ClusterDeadline.DlMax))
-              else if(tauI.c + tauJ.c <= tauI.d && (!(tauI.r.isDefined && tauI.r.get - tauI.c <= tauJ.d) || (tauI.d - tauI.c <= tauJ.d)))
-                children += ((sortedTaskSet, i, j, ClusterDeadline.DlMin))
+              if (tauJ.c + tauI.c <= tauJ.d && ((tauJ.r.isDefined && tauJ.r.get - tauJ.c <= tauI.d) || (tauJ.d - tauJ.c <= tauI.d)))
+                children += ((sortedTaskSet, j, i, ClusterDeadline.DlMax))
+              else if(tauJ.c + tauI.c <= tauI.d && (!(tauJ.r.isDefined && tauJ.r.get - tauJ.c <= tauI.d) || (tauJ.d - tauJ.c <= tauI.d)))
+                children += ((sortedTaskSet, j, i, ClusterDeadline.DlMin))
             }
           }
         }
-        j -= 1
+        i -= 1
       }
-      i -= 1
+      j -= 1
     }
 
     val schedulableChildren = new ArrayBuffer[TaskSet]()
@@ -150,6 +150,7 @@ object MonoClustering {
     * @return set of schedulable flows where the number of tasks is minimizes
     */
   def cluster(taskSet: TaskSet, schedTest: SchedTest, costFunction: CostFunction, rta: Option[ResponseTimeAnalysis]): TaskSet = {
+    require(schedTest(Encoding.predsEncoding(taskSet))._1, "the initial task set must be schedulable")
     greedyBFSClustering(taskSet, schedTest, costFunction, rta)
   }
 }
