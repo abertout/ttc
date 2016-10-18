@@ -128,7 +128,7 @@ object Export{
           for(task <- taskSet.set) yield
             <periodic_task id={tasksIdMap(task)}>
               <object_type>TASK_OBJECT_TYPE</object_type>
-              <name>{task.name}</name>
+              <name>{task.id}</name>
               <task_type>PERIODIC_TYPE</task_type>
               <cpu_name>{cpuName}</cpu_name>
               <address_space_name>a1</address_space_name>
@@ -197,7 +197,7 @@ object Export{
         <tasks>
           {for (task <- taskSet.set) yield
             <task ACET="0" WCET={Unparsed(task.c.toFloat.toString)} abort_on_miss="yes" activationDate={Unparsed(task.o.toString)} base_cpi="1.0" deadline={Unparsed(task.d.toFloat.toString)} et_stddev="0" id={tasksIdMap(task)}
-                  instructions="0" list_activation_dates="" mix="0.5" name={Unparsed(task.name)} period={Unparsed(task.t.toFloat.toString)} preemption_cost="0" task_type="Periodic"/>
+                  instructions="0" list_activation_dates="" mix="0.5" name={Unparsed(task.id)} period={Unparsed(task.t.toFloat.toString)} preemption_cost="0" task_type="Periodic"/>
           }
         </tasks>
       </simulation>
@@ -250,12 +250,12 @@ object Export{
     output.append("digraph "+graphName+" {")
     for (ts <- taskSet.set){
       if (taskSet.directSuccs(ts).isEmpty)
-        output.append("\n"+idDotPrefix+ts.name+" [label = \""+ts+"\""+"];")
+        output.append("\n"+idDotPrefix+ts.id+" [label = \""+ts+"\""+"];")
       else
         for(succ <- taskSet.directSuccs(ts)){
-          output.append("\n"+idDotPrefix+ts.name+" -> "+idDotPrefix+succ.name+";")
-          output.append("\n"+idDotPrefix+ts.name+" [label = \""+ts+"\""+"];")
-          output.append("\n"+idDotPrefix+succ.name+" [label = \""+succ+"\""+"];")
+          output.append("\n"+idDotPrefix+ts.id+" -> "+idDotPrefix+succ.id+";")
+          output.append("\n"+idDotPrefix+ts.id+" [label = \""+ts+"\""+"];")
+          output.append("\n"+idDotPrefix+succ.id+" [label = \""+succ+"\""+"];")
         }
     }
 
@@ -274,7 +274,7 @@ object Export{
   def genScalaTaskSetDecl(taskSet: TaskSet, taskSetVarName: String): String = {
     val sb = new StringBuilder
     for(t <- taskSet.set)
-      sb.append("val "+t.name+ " = Task(\""+t.name+"\", "+t.c+", "+t.d+", "+t.t+", "+t.o+", "+t.r+")\n")
+      sb.append("val "+t.id+ " = Task(\""+t.id+"\", "+t.c+", "+t.d+", "+t.t+", "+t.o+", "+t.r+")\n")
 
 
 
@@ -284,7 +284,7 @@ object Export{
         sb.append("val dep = Map(\n")
         val truc =  taskSet.set.filter(task => taskSet.directSuccs(task).nonEmpty)
         val truc2 = truc.map(
-          task => s"\t${task.name} -> Set(${taskSet.directSuccs(task).map(_.name).mkString(",")})"
+          task => s"\t${task.id} -> Set(${taskSet.directSuccs(task).map(_.id).mkString(",")})"
         )
         sb.append(truc2.mkString(",\n"))
         sb.append("\n)\n")
@@ -298,9 +298,9 @@ object Export{
     }
 
     sb.append(s"val $taskSetVarName = TaskSet(set = Seq(")
-    sb.append(s"${taskSet.set.head.name}")
+    sb.append(s"${taskSet.set.head.id}")
 
-    for(i <- 1 until taskSet.set.length) sb.append(","+taskSet.set(i).name)
+    for(i <- 1 until taskSet.set.length) sb.append(","+taskSet.set(i).id)
     sb.append(s")$dep")
     sb.toString
   }

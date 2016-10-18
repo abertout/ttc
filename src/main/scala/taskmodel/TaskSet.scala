@@ -62,7 +62,7 @@ case class TaskSet(set: Seq[Task], tasksAndSuccs: Option[Map[Task, Set[Task]]] =
 
   override def toString: String = {
     "TaskSet[set("+set.mkString("(",", ",")")+"), Dep("+tasksAndSuccs.getOrElse(Map.empty[Task, Set[Task]]).map{
-      case (task,succs) => s"${task.name} -> ${succs.map(succ => succ.name).mkString("(",",",")")}"
+      case (task,succs) => s"${task.id} -> ${succs.map(succ => succ.id).mkString("(",",",")")}"
     }.mkString(", ")+")]"
   }
 
@@ -86,8 +86,8 @@ case class TaskSet(set: Seq[Task], tasksAndSuccs: Option[Map[Task, Set[Task]]] =
     }
     other match {
       case that: TaskSet =>
-        val ordThatSet = that.set.sortBy(_.name)
-        val ordThisSet = this.set.sortBy(_.name)
+        val ordThatSet = that.set.sortBy(_.id)
+        val ordThisSet = this.set.sortBy(_.id)
         val sameContent = eqTaskSeq(ordThatSet, ordThisSet)
         sameContent && this.tasksAndSuccs == that.tasksAndSuccs
 

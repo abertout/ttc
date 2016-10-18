@@ -86,10 +86,10 @@ class TaskSetParserSpec extends UnitSpec{
     List("tau1") shouldEqual TaskSetParser.parse(TaskSetParser.listTaskId, l1).getOrElse("")
     List("a", "b") shouldEqual TaskSetParser.parse(TaskSetParser.listTaskId, l2).getOrElse("")
     an [RuntimeException] should be thrownBy TaskSetParser.parse(TaskSetParser.listTaskId, l3).get
-    PredDecl((f.tauA.name, List(f.tauB.name))) shouldEqual TaskSetParser.parse(TaskSetParser.precedDecl, l4).getOrElse(("", List.empty[String]))
-    PredDecl((f.tauA.name, List(f.tauB.name, f.tauC.name))) should not equal TaskSetParser.parse(TaskSetParser.precedDecl, l5).getOrElse(("", List.empty[String]))
-    PredDecl((f.tauA.name, List(f.tauB.name, f.tauC.name))) shouldEqual TaskSetParser.parse(TaskSetParser.precedDecl, l6).getOrElse(("", List.empty[String]))
-    PredDecl((f.tauA.name, List("5taux"))) shouldEqual TaskSetParser.parse(TaskSetParser.precedDecl, l7).getOrElse(("", List.empty[String]))
+    PredDecl((f.tauA.id, List(f.tauB.id))) shouldEqual TaskSetParser.parse(TaskSetParser.precedDecl, l4).getOrElse(("", List.empty[String]))
+    PredDecl((f.tauA.id, List(f.tauB.id, f.tauC.id))) should not equal TaskSetParser.parse(TaskSetParser.precedDecl, l5).getOrElse(("", List.empty[String]))
+    PredDecl((f.tauA.id, List(f.tauB.id, f.tauC.id))) shouldEqual TaskSetParser.parse(TaskSetParser.precedDecl, l6).getOrElse(("", List.empty[String]))
+    PredDecl((f.tauA.id, List("5taux"))) shouldEqual TaskSetParser.parse(TaskSetParser.precedDecl, l7).getOrElse(("", List.empty[String]))
   }
 
   it should "parse the tasks" in {

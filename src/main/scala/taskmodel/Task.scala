@@ -40,27 +40,27 @@ package ttc.taskmodel
 
 /**
  * A task with real-time constraints
- * @param name task id
+ * @param id task id
  * @param c worst-case execution time (WCET)
  * @param d relative deadline
  * @param t period of activation
  * @param o offset
  * @param r worst-case response time
  */
-case class Task(name: String, c: Int, d:Int, t:Int, o:Int = 0, var r: Option[Int] = None) {
+case class Task(id: String, c: Int, d:Int, t:Int, o:Int = 0, var r: Option[Int] = None) {
 
-  override def toString: String = s"$name($c, $d, $t, $o, ${r.getOrElse("-1")})"
+  override def toString: String = s"$id($c, $d, $t, $o, ${r.getOrElse("-1")})"
 
   /* Task equality is based on its id */
-  override def hashCode = name.hashCode
+  override def hashCode = id.hashCode
 
   override def equals(other: Any) = other match {
-    case that: Task => this.name == that.name
+    case that: Task => this.id == that.id
     case _ => false
   }
 
   def equalContent(other: Any) = other match {
-    case that: Task => this.name == that.name && this.c == that.c && this.d == that.d && this.t == that.t && this.o == that.o
+    case that: Task => this.id == that.id && this.c == that.c && this.d == that.d && this.t == that.t && this.o == that.o
     case _ => false
   }
 

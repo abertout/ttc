@@ -84,7 +84,7 @@ object TaskSetParser extends JavaTokenParsers{
     * @return
     */
   private def taskByName(taskset: Seq[Task], name: String): Option[Task] = {
-    taskset.collectFirst { case t if t.name == name => t}
+    taskset.collectFirst { case t if t.id == name => t}
   }
 
   private def taskSetFromParsed(parsed: List[Stmt]): TaskSet = {

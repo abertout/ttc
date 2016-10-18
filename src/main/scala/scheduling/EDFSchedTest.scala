@@ -564,9 +564,9 @@ object EDFasynchronousSufficientTest extends EDFSchedTest {
     for (i <- taskSet.set.indices) {
       val copiedTaskSet = TaskSet(set = taskSet.set.map(_.copy()))
       val syncFixedTask = copiedTaskSet.set(i)
-      val asynchFixedTask = Task(syncFixedTask.name, syncFixedTask.c, syncFixedTask.d, syncFixedTask.t, 0)
+      val asynchFixedTask = Task(syncFixedTask.id, syncFixedTask.c, syncFixedTask.d, syncFixedTask.t, 0)
       val tmpNewTaskSet = for (task <- copiedTaskSet.set if task != asynchFixedTask)
-        yield Task(task.name, task.c, task.d, task.t, minimalDistance(asynchFixedTask, task), task.r)
+        yield Task(task.id, task.c, task.d, task.t, minimalDistance(asynchFixedTask, task), task.r)
       val newTaskSet = TaskSet(set = tmpNewTaskSet :+ asynchFixedTask)
       var lastLStarValue = 0
       var lStar = asynchFixedTask.c

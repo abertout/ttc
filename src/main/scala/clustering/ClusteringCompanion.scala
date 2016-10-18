@@ -57,27 +57,27 @@ case class ClusteringCompanion(taskSet: TaskSet) {
     val compoundTask: Task = dl match {
       case ClusterDeadline.DlMin =>
         if(task1.d < task2.d)
-          Task(task1.name + ClusteringCompanion.taskSep + task2.name, task1.c + task2.c, task1.d, task1.t, 0, None)
+          Task(task1.id + ClusteringCompanion.taskSep + task2.id, task1.c + task2.c, task1.d, task1.t, 0, None)
         else
-          Task(task2.name + ClusteringCompanion.taskSep + task1.name, task1.c + task2.c, task2.d, task2.t, 0, None)
+          Task(task2.id + ClusteringCompanion.taskSep + task1.id, task1.c + task2.c, task2.d, task2.t, 0, None)
 
       case ClusterDeadline.DlMax =>
         if(task1.d > task2.d)
-          Task(task1.name + ClusteringCompanion.taskSep + task2.name, task1.c + task2.c, task1.d, task1.t, 0, None)
+          Task(task1.id + ClusteringCompanion.taskSep + task2.id, task1.c + task2.c, task1.d, task1.t, 0, None)
         else
-          Task(task2.name + ClusteringCompanion.taskSep + task1.name, task1.c + task2.c, task2.d, task2.t, 0, None)
+          Task(task2.id + ClusteringCompanion.taskSep + task1.id, task1.c + task2.c, task2.d, task2.t, 0, None)
 
       case ClusterDeadline.DlPred =>
         if(taskSet.directPredRelation(task1, task2))
-          Task(task1.name + ClusteringCompanion.taskSep + task2.name, task1.c + task2.c, task1.d, task1.t, 0, None)
+          Task(task1.id + ClusteringCompanion.taskSep + task2.id, task1.c + task2.c, task1.d, task1.t, 0, None)
         else
-          Task(task2.name + ClusteringCompanion.taskSep + task1.name, task1.c + task2.c, task2.d, task2.t, 0, None)
+          Task(task2.id + ClusteringCompanion.taskSep + task1.id, task1.c + task2.c, task2.d, task2.t, 0, None)
 
       case ClusterDeadline.DlSucc =>
         if(taskSet.directPredRelation(task1, task2))
-          Task(task2.name + ClusteringCompanion.taskSep + task1.name, task1.c + task2.c, task2.d, task2.t, 0, None)
+          Task(task2.id + ClusteringCompanion.taskSep + task1.id, task1.c + task2.c, task2.d, task2.t, 0, None)
         else
-          Task(task1.name + ClusteringCompanion.taskSep + task2.name, task1.c + task2.c, task1.d, task1.t, 0, None)
+          Task(task1.id + ClusteringCompanion.taskSep + task2.id, task1.c + task2.c, task1.d, task1.t, 0, None)
 
     }
 

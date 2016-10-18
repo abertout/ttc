@@ -62,9 +62,9 @@ object MonoClustering {
       case Some(rt) => //RTA on encoded but original task set parameters should not be modified
         val encoded = Encoding.predsEncoding(taskSet)
         val rtaEncoded = rt(encoded)._2
-        val sorted = taskSet.set.sortBy(_.name)
-        val depTaskSetwithR = sorted.zip(rtaEncoded.set.sortBy(_.name)).map{
-          case (tau,tauEnc) => Task(tau.name,tau.c,tau.d,tau.t,tau.o,tauEnc.r)
+        val sorted = taskSet.set.sortBy(_.id)
+        val depTaskSetwithR = sorted.zip(rtaEncoded.set.sortBy(_.id)).map{
+          case (tau,tauEnc) => Task(tau.id,tau.c,tau.d,tau.t,tau.o,tauEnc.r)
         }
         TaskSet(depTaskSetwithR,taskSet.tasksAndSuccs)
     }
