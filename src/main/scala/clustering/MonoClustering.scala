@@ -83,7 +83,7 @@ object MonoClustering {
         if (comp.regroupable(tauJ, tauI)) {
           if (taskSet.isolatedTask(tauJ, tauI)) {
             if ((tauJ.c + tauI.c <= tauJ.d) && ((tauJ.r.isDefined && tauJ.r.get - tauJ.c <= tauI.d) || (tauJ.d - tauJ.c <= tauI.d))) { //Case 1.a
-              val newTaskSet = comp.fusion(tauJ, tauI, ClusterDeadline.DlMax)
+            val newTaskSet = comp.fusion(tauJ, tauI, ClusterDeadline.DlMax)
               return greedyBFSClustering(newTaskSet, schedTest, costFunction, rta)
             } else if(tauJ.c + tauI.c <= tauI.d){ //Case 1.b
               children += ((sortedTaskSet, j, i, ClusterDeadline.DlMin))
@@ -125,19 +125,15 @@ object MonoClustering {
       val comp = new ClusteringCompanion(ts)
       val newTaskSet = comp.fusion(ts.set(ii), ts.set(jj), dl)
       val newEncodedTaskSet = Encoding.predsEncoding(newTaskSet) //After fusion we ensure that no redundant edge exist
-
-      if (schedTest(newEncodedTaskSet)._1) {
-        //If task set is schedulable
+      if (schedTest(newEncodedTaskSet)._1)//If task set is schedulable
         schedulableChildren += newTaskSet
-      }
     }
 
     if (schedulableChildren.nonEmpty)
       setMinCost = Some(costFunction(schedulableChildren))
 
-
-    if (setMinCost.isDefined) greedyBFSClustering(setMinCost.get, schedTest, costFunction, rta) //If we found at least one schedulable child, let's make a recursive call on the most promising child
-    else taskSet //Otherwise we return the father
+    if (setMinCost.isDefined) return greedyBFSClustering(setMinCost.get, schedTest, costFunction, rta) //If we found at least one schedulable child, let's make a recursive call on the most promising child
+    taskSet //Otherwise we return the father
   }
 
 

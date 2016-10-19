@@ -130,7 +130,7 @@ object MultiClustering {
           if (comp.regroupable(tauJ, tauI)) {
             if (taskSetMinCost.get.isolatedTask(tauJ, tauI)) {
               if ((tauJ.c + tauI.c <= tauJ.d) && (tauJ.r.isDefined && tauJ.r.get - tauJ.c <= tauI.d) || (tauJ.d - tauJ.c <= tauI.d)) { //Case 1.a
-                val newTaskSet = comp.fusion(tauJ, tauI, ClusterDeadline.DlMax)
+              val newTaskSet = comp.fusion(tauJ, tauI, ClusterDeadline.DlMax)
                 val newSortedTs = TaskSet(newTaskSet.set.sortBy(_.d), newTaskSet.tasksAndSuccs)
                 resultFlows(currFlowIdx) = newSortedTs
                 val gobalComp = ClusteringCompanion(taskSetMinCost.get)
@@ -183,12 +183,9 @@ object MultiClustering {
           val updatedEncTaskSet = Encoding.predsEncoding(updatedTaskSet)
           val updatedFlows: Array[TaskSet] = resultFlows.updated(currFlowIdx, updatedFlow)
           val updatedEncFlows =  updatedFlows.map(ts => updatedEncTaskSet.restrictedTo(ts.set:_*))
-
           val nonSched = updatedEncFlows.exists(!schedTest(_)._1)
-
-          if (!nonSched) {              //If task set is schedulable
+          if (!nonSched)          //If task set is schedulable
             schedulableChildren += ((updatedTaskSet, updatedFlows))
-          }
         }
         var currGlobalTaskSet: Option[TaskSet] = taskSetMinCost
 
