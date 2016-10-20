@@ -89,11 +89,11 @@ object MonoClustering {
               children += ((sortedTaskSet, j, i, ClusterDeadline.DlMin))
             }
           } else {
-            val iPredOfJ = sortedTaskSet.directPredRelation(tauJ, tauI)
-            val iSuccOfJ = sortedTaskSet.directSuccRelation(tauJ, tauI)
-            if (iPredOfJ || iSuccOfJ) {
-              val pred = if (iPredOfJ) tauJ else tauI
-              val succ = if (iSuccOfJ) tauJ else tauI
+            val jPredOfI = sortedTaskSet.directPredRelation(tauJ, tauI)
+            val jSuccOfI = sortedTaskSet.directSuccRelation(tauJ, tauI)
+            if (jPredOfI || jSuccOfI) {
+              val pred = if (jPredOfI) tauJ else tauI
+              val succ = if (jSuccOfI) tauJ else tauI
 
               //Check the conditions
               if (pred.d > succ.d && pred.c + succ.c <= succ.d) { //Case 2.a

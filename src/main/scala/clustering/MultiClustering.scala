@@ -140,11 +140,11 @@ object MultiClustering {
                 children += ((sortedFLow, j, i, ClusterDeadline.DlMin))
               }
             } else {
-              val iPredOfJ = sortedFLow.directPredRelation(tauJ, tauI)
-              val iSuccOfJ = sortedFLow.directSuccRelation(tauJ, tauI)
-              if (iPredOfJ || iSuccOfJ) {
-                val pred = if (iPredOfJ) tauJ else tauI
-                val succ = if (iSuccOfJ) tauJ else tauI
+              val jPredOfI = sortedFLow.directPredRelation(tauJ, tauI)
+              val jSuccOfI = sortedFLow.directSuccRelation(tauJ, tauI)
+              if (jPredOfI || jSuccOfI) {
+                val pred = if (jPredOfI) tauJ else tauI
+                val succ = if (jSuccOfI) tauJ else tauI
 
                 //Check the conditions
                 if (pred.d > succ.d && pred.c + succ.c <= succ.d) {
