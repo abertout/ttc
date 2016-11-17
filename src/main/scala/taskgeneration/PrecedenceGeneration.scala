@@ -65,6 +65,7 @@ object SimpleErdösRényi extends PrecedenceGeneration {
   }
 }
 
+/* By-Level generation. Precedence constraints are generated following deadline order, the task with the shortest deadline is the predecessor */
 object ByLevel extends PrecedenceGeneration {
 
   def apply(taskSet: TaskSet, prob: Double, levels: Double): TaskSet = {
@@ -96,12 +97,38 @@ object ByLevel extends PrecedenceGeneration {
     TaskSet(set = taskSet.set, Some(depMap))
   }
 
+}
 
+/* By-Level generation without relation between deadline and precedence constraint order*/
+object ByLevelRdmOrder extends PrecedenceGeneration {
 
+  def apply(taskSet: TaskSet, prob: Double, levels: Double): TaskSet = {
+    require(prob >= 0 && prob <= 1, "probability must be in [0,1] interval")
+    require(levels >=0 && levels <= 1,"percentage of levels should be between 0 and 1")
 
+    val tasksByPeriod = taskSet.set.groupBy(_.t)
 
+    def allComb[A](z:Seq[Seq[A]]): Seq[(A,A)] = if(z.size > 1)for(xs <- z.head; ys <- z(1)) yield(xs,ys) else Seq.empty[(A,A)]
 
+    val depMapByPeriod =
+      for{
+        taskOfOnePeriod <- tasksByPeriod
+        tasks = Random.shuffle(taskOfOnePeriod._2)
+        maxHeight = (levels * tasks.size).toInt
+        nbTasksByLevel = Numbers.partitionsWithoutTwoMuchZero(maxHeight, tasks.size,.15).filter(_ != 0)
+        nLevel = nbTasksByLevel.size
+        tasksByLevel = nbTasksByLevel.foldLeft((tasks,Seq.empty[Seq[Task]])) {
+          case ((oldTasks, newTasks), occ) => (oldTasks.drop(occ),newTasks.:+(oldTasks.take(occ)))
+        }._2
+        communicatingLevels = tasksByLevel.sliding(2).toList
+        toTuple = communicatingLevels map(x => allComb(x))
+        dependentTasks: Seq[(Task,Task)] = (for (t <- toTuple if scala.util.Random.nextDouble <= prob)  yield t).flatten
+        dep: Map[Task, Set[Task]] = dependentTasks.groupBy(_._1) map {case (k,v) => (k,v.map(_._2).toSet)}
+      }yield dep
 
+    val depMap = depMapByPeriod.reduce(_.++(_))
+    TaskSet(set = taskSet.set, Some(depMap))
+  }
 }
 
 
