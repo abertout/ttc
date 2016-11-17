@@ -132,7 +132,9 @@ class ClusteringCompanionSpec extends UnitSpec{
     val ts = f.taskSet
     val companion = new ClusteringCompanion(ts)
     companion.regroupable(f.tauB, f.tauA) shouldEqual false
+    companion.regroupable(f.tauA, f.tauB) shouldEqual false
     companion.regroupable(f.tauB, f.tauC) shouldEqual true
+    companion.regroupable(f.tauC, f.tauB) shouldEqual true
   }
 
   it should "not be grouped if there is a path different than a direct precedence constraint between them" in {
@@ -140,6 +142,7 @@ class ClusteringCompanionSpec extends UnitSpec{
     val ts = f.taskSet
     val companion = new ClusteringCompanion(ts)
     companion.regroupable(f.tauB, f.tauE) shouldEqual false
+    companion.regroupable(f.tauE, f.tauB) shouldEqual false
   }
 
   it should "be able to be grouped if they have equal periods and a correct link in the graph" in {
@@ -147,6 +150,7 @@ class ClusteringCompanionSpec extends UnitSpec{
     val ts = f.taskSet
     val companion = new ClusteringCompanion(ts)
     companion.regroupable(f.tauB, f.tauC) shouldEqual true
+    companion.regroupable(f.tauC, f.tauB) shouldEqual true
   }
 
   it should "be well fused" in {

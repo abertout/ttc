@@ -114,7 +114,7 @@ case class ClusteringCompanion(taskSet: TaskSet) {
   def regroupable(task1: Task, task2: Task): Boolean = {
     val idx1 = taskSet.adjMap._1(task1)
     val idx2 = taskSet.adjMap._1(task2)
-    task1.t == task2.t && closedAdjMatrix(idx1)(idx2) != ClusteringCompanion.ADDED_EDGE
+    task1.t == task2.t && !(closedAdjMatrix(idx1)(idx2) == ClusteringCompanion.ADDED_EDGE || closedAdjMatrix(idx2)(idx1) == ClusteringCompanion.ADDED_EDGE)
   }
 
 
