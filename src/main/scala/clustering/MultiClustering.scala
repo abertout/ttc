@@ -47,8 +47,9 @@ import scala.collection.parallel.immutable.ParVector
 
 object MultiClustering {
 
+  //TODO rendre la méthode plus efficace
   private def partitionFlows(taskSet: TaskSet, flows: Vector[Seq[Task]]): (Vector[Seq[Task]],Vector[Seq[Task]]) = {
-
+    /* returns indep and dep flows as a tuple */
     def isIndep(flow: Seq[Task]): Boolean = {
       for(task <- flow){
         for(succ <- taskSet.directSuccs(task))
@@ -81,7 +82,7 @@ object MultiClustering {
     println(optFlows)
     optFlows match {
       case Some(flows) =>
-        val (depFlows, indepFlows) = partitionFlows(taskSet, flows)
+        val (indepFlows, depFlows) = partitionFlows(taskSet, flows)
         val clusteredIndepFlows: ParVector[TaskSet] = indepFlows.par.map(flow => MonoClustering.greedyBFSClustering(taskSet.restrictedTo(flow:_*),clusSchedTest, costFunction, rta)) //uses scala parallel collection to distribute the computation over several threads
       val depFlowsTaskSet: Vector[TaskSet] = depFlows.map(flow => taskSet.restrictedTo(flow:_*))
         val clusteredDepFlows: Seq[TaskSet] =
