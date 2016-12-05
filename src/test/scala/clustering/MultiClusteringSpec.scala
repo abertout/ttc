@@ -38,9 +38,9 @@
 
 package ttc.clustering
 
-import ttc.clustering.{MultiClustering, MinDensity}
+import ttc.clustering.{MinDensity, MultiClustering}
 import ttc.partitionning.ButtazoHeuristicH1
-import ttc.scheduling.EDFqPA
+import ttc.scheduling.{DMresponseTimeAnalysis, EDFqPA}
 import ttc.taskmodel.{Task, TaskSet}
 import ttc.UnitSpec
 
@@ -185,13 +185,57 @@ class MultiClusteringSpec extends UnitSpec{
 
 
   "The partitionFlows method" should "separate dependent and independent flows" in {
-    val f = fixture
-    val taskSet =  f.taskSet
-    val flows = f.flows
+    val ff = fixture
+    val taskSet =  ff.taskSet
+    val flowsF = ff.flows
     val partitionFlowsMethod = PrivateMethod[((Vector[Seq[Task]],Vector[Seq[Task]]))]('partitionFlows)
-    val (indepFlow, depFlows) = MultiClustering invokePrivate partitionFlowsMethod(taskSet, flows)
-    indepFlow shouldEqual Vector(Seq(f.tauE, f.tauF))
-    depFlows shouldEqual Vector(Seq(f.tauA, f.tauB), Seq(f.tauC, f.tauD, f.tauI), Seq(f.tauG, f.tauH))
+    val (indepFlow, depFlows) = MultiClustering invokePrivate partitionFlowsMethod(taskSet, flowsF)
+    indepFlow shouldEqual Vector(Seq(ff.tauE, ff.tauF))
+    depFlows shouldEqual Vector(Seq(ff.tauA, ff.tauB), Seq(ff.tauC, ff.tauD, ff.tauI), Seq(ff.tauG, ff.tauH))
+
+    val a = Task("a", 943, 2273, 46200, 0, Some(1285))
+    val b = Task("b", 2, 653, 1120, 0, None)
+    val c = Task("c", 195, 1015, 1200, 0, Some(777))
+    val d = Task("d", 121, 767, 1120, 0, Some(154))
+    val e = Task("e", 64, 101, 1120, 0, Some(64))
+    val f = Task("f", 44, 440, 8400, 0, Some(44))
+    val g = Task("g", 199, 760, 1120, 0, None)
+    val h = Task("h", 487, 3079, 8400, 0, Some(1772))
+    val i = Task("i", 6872, 25882, 26400, 0, Some(25739))
+    val j = Task("j", 9657, 16605, 46200, 0, Some(15243))
+    val k = Task("k", 229, 977, 1120, 0, None)
+    val l = Task("l", 343, 1234, 1800, 0, Some(1120))
+    val m = Task("m", 3704, 43931, 46200, 0, Some(32101))
+    val n = Task("n", 234, 738, 1120, 0, None)
+    val o = Task("o", 68, 458, 1120, 0, None)
+    val p = Task("p", 154, 491, 1800, 0, Some(218))
+    val q = Task("q", 20, 4622, 8400, 0, Some(3037))
+    val r = Task("r", 81, 543, 1120, 0, None)
+    val s = Task("s", 11, 218, 1120, 0, Some(11))
+    val t = Task("t", 22, 45, 1120, 0, Some(22))
+
+    val dep = Map(
+      n -> Set(b)
+    )
+
+    val dep2 = Map(
+      g -> Set(b,e,k),
+      n -> Set(o),
+      r -> Set(g,s,t),
+      s -> Set(b,e,k),
+      t -> Set(b,e,k)
+    )
+    val taskSetBis = TaskSet(set = Seq(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t), Some(dep))
+    val taskSet2 = TaskSet(set = Seq(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t), Some(dep2))
+
+    val flows = ButtazoHeuristicH1.partitionning(taskSetBis, DMresponseTimeAnalysis).get
+    val flows2 = ButtazoHeuristicH1.partitionning(taskSet2, DMresponseTimeAnalysis).get
+
+    val (indepFlowsBis,depFlowsBis) = MultiClustering invokePrivate partitionFlowsMethod(taskSetBis,flows)
+    val (indepFlows2,depFlows2) = MultiClustering invokePrivate partitionFlowsMethod(taskSet2,flows2)
+
+    (depFlowsBis.size,indepFlowsBis.size) shouldEqual (0,3)
+    (indepFlows2.size,depFlows2.size)  shouldEqual (1,2)
   }
 
 
