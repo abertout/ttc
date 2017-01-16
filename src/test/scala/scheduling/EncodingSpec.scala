@@ -116,15 +116,15 @@ class EncodingSpec extends UnitSpec{
 
       val taskSetDep = TaskSet(set = Seq(tauB, tauC, tauI, tauA, tauD, tauF, tauE, tauG, tauH), Some(dep))
 
-    val encodedTauA = Task("a", 1, 3, 50, 0)
-    val encodedTauB = Task("b", 2, 7, 50, 5)
-    val encodedTauC = Task("c", 2, 5, 50, 1)
-    val encodedTauD = Task("d", 1, 9, 50, 7)
-    val encodedTauE = Task("e", 3, 12, 50, 8)
-    val encodedTauF = Task("f", 3, 9, 30, 0)
-    val encodedTauG = Task("g", 2, 12, 30, 5)
-    val encodedTauH = Task("h", 1, 13, 30, 7)
-    val encodedTauI = Task("i", 4, 20, 40, 0)
+      val encodedTauA = Task("a", 1, 3, 50, 0)
+      val encodedTauB = Task("b", 2, 7, 50, 5)
+      val encodedTauC = Task("c", 2, 5, 50, 1)
+      val encodedTauD = Task("d", 1, 9, 50, 7)
+      val encodedTauE = Task("e", 3, 12, 50, 8)
+      val encodedTauF = Task("f", 3, 9, 30, 0)
+      val encodedTauG = Task("g", 2, 12, 30, 5)
+      val encodedTauH = Task("h", 1, 13, 30, 7)
+      val encodedTauI = Task("i", 4, 20, 40, 0)
 
       val depEnc = Map(
         encodedTauA -> Set(encodedTauC, encodedTauD),
@@ -136,9 +136,9 @@ class EncodingSpec extends UnitSpec{
       )
 
 
-    val encTaskSet = TaskSet(set = Seq(encodedTauA, encodedTauB, encodedTauC, encodedTauD, encodedTauE, encodedTauF, encodedTauG, encodedTauH, encodedTauI), Some(depEnc))
+      val encTaskSet = TaskSet(set = Seq(encodedTauA, encodedTauB, encodedTauC, encodedTauD, encodedTauE, encodedTauF, encodedTauG, encodedTauH, encodedTauI), Some(depEnc))
 
-  }
+    }
 
   "The tasks " should "be encoded following the topologic order" in {
     val f = fixture
@@ -190,5 +190,36 @@ class EncodingSpec extends UnitSpec{
     val encTaskSet =  Encoding.predsEncoding(taskSet)
     val eqContent = taskSet equalContent encTaskSet
     eqContent shouldEqual true
+  }
+
+  "The Audsley encoding" should "work" in {
+
+    val tauA = Task("a", 2, 3, 4, 2)
+    val tauB = Task("b", 3, 4, 8, 0)
+    val tauC = Task("c", 1, 5, 8, 1)
+
+    val tauAa = Task("a", 2, 3, 4, 1)
+    val tauBa = Task("b", 3, 4, 8, 7)
+    val tauCa = Task("c", 1, 5, 8, 0)
+
+    val audTauA = Task("a", 1, 1, 10, 4)
+    val audTauB = Task("b", 1, 2, 10, 5)
+    val audTauC = Task("c", 5, 6, 20, 0)
+    val audTauD = Task("d", 8, 9, 40, 7)
+    val audTauE = Task("e", 8, 14, 40, 27)
+    val audTauF = Task("f", 6, 13, 40, 0)
+
+    val audsleyTaskSet = TaskSet(set = Seq(audTauA,audTauB,audTauC,audTauD,audTauE,audTauF))
+
+    val expected = TaskSet(set = Seq(tauAa, tauBa, tauCa), None)
+    val taskSet = TaskSet(set = Seq(tauA, tauB, tauC), None)
+
+    val adjustedSet = Encoding.audleyOffsetAdjusting(taskSet.set, tauC)
+    adjustedSet shouldEqual expected.set
+
+    Encoding.audleyOffsetAdjusting(audsleyTaskSet.set, audTauE).map(_.o) shouldEqual(
+      Seq(7,8,13,20,13,0)
+      )
+
   }
 }

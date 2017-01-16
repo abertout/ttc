@@ -135,7 +135,21 @@ object Encoding {
     TaskSet(encTaskSets.flatten.toSeq, taskSet.tasksAndSuccs)
   }
 
+  def hpTasks(taskSet: TaskSet, task: Task): Seq[Task] = taskSet.set.filter(_.d < task.d)
+  def hpTasks(seqOfTasks: Seq[Task], task: Task): Seq[Task] = seqOfTasks.filter(_.d < task.d)
+  def lpTasks(taskSet: TaskSet, task: Task): Seq[Task] = taskSet.set.filter(other => other.d >= task.d && other != task)
 
+  def audleyOffsetAdjusting(set: Seq[Task], task: Task): Seq[Task] = {
+    val hpTaskSet = hpTasks(set,task)
+    val encHpTasks: Seq[Task] = hpTaskSet.map{tau =>
+      val adjOffset = if(task.o > tau.o)
+        math.ceil((task.o - tau.o) / tau.t.toDouble) * tau.t + tau.o - task.o
+      else tau.o
+      tau.copy(o = adjOffset.toInt)
+    }
+    val finalSet = encHpTasks.:+(task.copy(o = 0))
+    finalSet
+  }
 
 
 }
