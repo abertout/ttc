@@ -114,5 +114,61 @@ class DMSchedTestSpec extends UnitSpec{
     DMsufficientSchedulabilityTest(taskSet)._1 shouldEqual true
   }
 
+  "The asynchronous RTA" should "work" in {
+
+    val tauA = Task("a", 2, 3, 4, 2)
+    val tauB = Task("b", 3, 4, 8, 0)
+    val tauC = Task("c", 1, 5, 8, 1)
+
+    val tauAa = Task("a", 2, 3, 4, 1)
+    val tauBa = Task("b", 3, 4, 8, 7)
+    val tauCa = Task("c", 1, 5, 8, 0)
+
+    val expected = TaskSet(set = Seq(tauAa, tauBa, tauCa), None)
+    val taskSet = TaskSet(set = Seq(tauA, tauB, tauC), None)
+
+    val adjustedSet = Encoding.audleyOffsetAdjusting(taskSet.set, tauC)
+    val rc = DMAsyncResponseTimeAnalysis(taskSet)
+
+    println(rc)
+    rc._2.set(2).r shouldEqual 5
+
+  }
+
+  it should "work with the extended example" in {
+
+    val tauA = Task("a", 1, 1, 10, 4)
+    val tauB = Task("b", 1, 2, 10, 5)
+    val tauC = Task("c", 5, 8, 20, 0)
+    val tauD = Task("d", 8, 10, 40, 7)
+    val tauE = Task("e", 8, 30, 40, 27)
+    val tauF = Task("f", 6, 40, 40, 0)
+    val taskSet = TaskSet(set = Seq(tauA, tauB, tauC, tauD, tauE, tauF), None)
+
+    val rc = DMAsyncResponseTimeAnalysis(taskSet)
+    rc._1 shouldEqual true
+    rc._2.set.map(_.r.get).reverse shouldEqual Seq(1,1,7,10,10,40)
+
+
+  }
+
+  it should "work with another example" in {
+
+    val tauA = Task("a", 3, 4, 10, 1)
+    val tauB = Task("b", 2, 2, 10, 0)
+
+    val tauC = Task("c", 2, 6, 6, 1) //Goossens RTS
+    val tauD = Task("d", 5, 8, 8, 0)
+
+    val taskSet = TaskSet(set = Seq(tauA, tauB), None)
+    val taskSet2 = TaskSet(set = Seq(tauC, tauD), None)
+
+    val rc = DMAsyncResponseTimeAnalysis(taskSet)
+    rc shouldEqual (true,TaskSet(set= Seq(tauA.copy(r = Some(4)),tauB.copy(r = Some(2))),None))
+    val rc2 = DMAsyncResponseTimeAnalysis(taskSet2)
+    rc2 shouldEqual (true,TaskSet(set= Seq(tauC.copy(r = Some(2)),tauD.copy(r = Some(8))),None))
+  }
+
+
 
 }
