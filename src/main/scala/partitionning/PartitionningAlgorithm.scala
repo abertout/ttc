@@ -184,10 +184,11 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
       case None => remainingDepTasks.sortWith(sortByDecExecTime)
     }
 
+
     val finalFlows = remainingTasksStep(firstFlows, sortedRemainingTasks, schedTest)
+    val flowToTaskSets = finalFlows.map(f =>taskSet.restrictedTo(f:_*))
 
-
-    if(finalFlows.exists(uFactor(_) > 1.00d))
+    if(flowToTaskSets.exists(ts => !schedTest( Encoding.predsEncoding(ts))._1))
       return None
     Some(finalFlows)
   }
@@ -246,8 +247,11 @@ object GlobalHeuristic extends PartitionningAlgorithm {
     }
 
     val flows = minNbFlows(taskSet, Vector.empty[Seq[Task]], taskSet, schedTest)
-    if(flows.exists(uFactor(_) > 1.00d))
-      throw new Exception("Partitionning infeasible")
+    val flowToTaskSets = flows.map(f => taskSet.restrictedTo(f:_*))
+
+    if(flowToTaskSets.exists(ts => !schedTest(Encoding.predsEncoding(ts))._1))
+      return None
+
     Some(flows)
 
   }
