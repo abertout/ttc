@@ -78,7 +78,7 @@ object DMresponseTimeAnalysis extends DMSchedTest with ResponseTimeAnalysis{
       while(!fixedPointReached){
         for (j <- 0 until i) {
           task2 = newTaskSet.set(j)
-          var value =  math.ceil(lastRTValue.toFloat / task2.t.toFloat).toInt * task2.c
+          var value =  math.ceil(lastRTValue / task2.t.toFloat).toInt * task2.c
           newRTValue +=  value
         }
         if(newRTValue > task.d){
