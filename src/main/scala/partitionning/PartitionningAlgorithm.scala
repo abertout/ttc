@@ -142,15 +142,15 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
     * In Workshop on Adaptive Resource Management. SWE.
     * u factor instead of computation times. Computation of mLow adapted to the end deadline constraint
     *
-    * @param taskSet taskSet
+    * @param sourceTaskSet taskSet
     * @return Seq of flows
     */
 
 
-  def heuristicPartitionning(taskSet: TaskSet, initialNbOfFlows: Int, schedTest: SchedTest): Option[Vector[Seq[Task]]] = {
-    val (indepSet, depSet) = taskSet.set.partition(task => taskSet.directPreds(task).isEmpty && taskSet.directSuccs(task).isEmpty)
-    val indepTaskSet = if(indepSet.nonEmpty) Some(taskSet.restrictedTo(indepSet:_*)) else None
-    val depTaskSet = if(depSet.nonEmpty) Some(taskSet.restrictedTo(depSet:_*)) else None
+  def heuristicPartitionning(sourceTaskSet: TaskSet, initialNbOfFlows: Int, schedTest: SchedTest): Option[Vector[Seq[Task]]] = {
+    val (indepSet, depSet) = sourceTaskSet.set.partition(task => sourceTaskSet.directPreds(task).isEmpty && sourceTaskSet.directSuccs(task).isEmpty)
+    val indepTaskSet = if(indepSet.nonEmpty) Some(sourceTaskSet.restrictedTo(indepSet:_*)) else None
+    val depTaskSet = if(depSet.nonEmpty) Some(sourceTaskSet.restrictedTo(depSet:_*)) else None
 
     @tailrec
     def depTasksStep(taskSet: TaskSet, flows: Vector[Seq[Task]], remainingTaskSet: TaskSet, initialNbOfFlows: Int, schedTest: SchedTest): (Vector[Seq[Task]],List[Task]) = {
@@ -166,7 +166,7 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
     //@tailrec
     def remainingTasksStep(flows: Vector[Seq[Task]], setOfTasks: List[Task], schedTest: SchedTest): Vector[Seq[Task]] = setOfTasks match {
       case task :: rest =>
-        val updatedFlows = fitElseNew(taskSet, flows, Seq(task), schedTest)
+        val updatedFlows = fitElseNew(sourceTaskSet, flows, Seq(task), schedTest)
         remainingTasksStep(updatedFlows, rest, schedTest)
       case _ => flows
     }
@@ -186,9 +186,7 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
 
 
     val finalFlows = remainingTasksStep(firstFlows, sortedRemainingTasks, schedTest)
-    val flowToTaskSets = finalFlows.map(f =>taskSet.restrictedTo(f:_*))
-
-    if(flowToTaskSets.exists(ts => !schedTest( Encoding.predsEncoding(ts))._1))
+    if(finalFlows.map(ts => schedTest(Encoding.predsEncoding(sourceTaskSet).restrictedTo(ts:_*))._1).exists(_ == false)) //If one the flow is non schedulable considering the whole source taskSet precedences
       return None
     Some(finalFlows)
   }
@@ -199,8 +197,15 @@ object ButtazoHeuristicH1 extends PartitionningAlgorithm{
 
     for(i <- flowsByDecUFactor.indices) {
       val expFlow: Seq[Task] = flowsByDecUFactor(i) ++ cp
+
+      //Option 1 : Quick partitioning but may create unfeasible partitions (detected anyway)
       val flowTaskSet: TaskSet = taskSet.restrictedTo(expFlow:_*) //create a new task set in adding the task to the current flow
       val encflowTaskSet = Encoding.predsEncoding(flowTaskSet)
+
+      //Option 2 : Slow partitioning but best effort
+      //val encTaskSet = Encoding.predsEncoding(taskSet)
+      //val encflowTaskSet = encTaskSet.restrictedTo(expFlow:_*)
+      
       if(schedTest(encflowTaskSet)._1){
         return flowsByDecUFactor.updated(i, expFlow)
       }
@@ -230,11 +235,11 @@ object GlobalHeuristic extends PartitionningAlgorithm {
 
   /**
     * Minimize the number of flows in assigning decreasing execution time critical path to flows successively (Best Fit). Critical path can be made of a single task
-    * @param taskSet taskSet
+    * @param sourceTaskSet taskSet
     * @param schedTest schedulability test
     * @return vector of flows
     */
-  override def partitionning(taskSet: TaskSet, schedTest: SchedTest): Option[Vector[Seq[Task]]] = {
+  override def partitionning(sourceTaskSet: TaskSet, schedTest: SchedTest): Option[Vector[Seq[Task]]] = {
 
     @tailrec
     def minNbFlows(taskSet: TaskSet, flows: Vector[Seq[Task]], remainingTaskSet: TaskSet, schedTest: SchedTest): Vector[Seq[Task]] = {
@@ -246,13 +251,13 @@ object GlobalHeuristic extends PartitionningAlgorithm {
       minNbFlows(taskSet, updatedFlows, remainingTaskSet.remove(cp:_*), schedTest)
     }
 
-    val flows = minNbFlows(taskSet, Vector.empty[Seq[Task]], taskSet, schedTest)
-    val flowToTaskSets = flows.map(f => taskSet.restrictedTo(f:_*))
+    val flows = minNbFlows(sourceTaskSet, Vector.empty[Seq[Task]], sourceTaskSet, schedTest)
+    val flowToTaskSets = flows.map(f => sourceTaskSet.restrictedTo(f:_*).set)
 
-    if(flowToTaskSets.exists(ts => !schedTest(Encoding.predsEncoding(ts))._1))
+    if(flows.map(ts => schedTest(Encoding.predsEncoding(sourceTaskSet).restrictedTo(ts:_*))._1).exists(_ == false)) //If one the flow is non schedulable considering the whole source taskSet precedences
       return None
 
-    Some(flows)
+    Some(flowToTaskSets)
 
   }
 
